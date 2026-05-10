@@ -142,15 +142,17 @@ class MainWindow(QWidget):
         glide_row.addStretch(1)
         right_col.addLayout(glide_row)
 
+        from PySide6.QtWidgets import QSizePolicy
+
         self.polar_chart_label = QLabel("[Polar curve chart placeholder]")
         self.polar_chart_label.setStyleSheet("background: #eee; border: 1px dashed #aaa; min-height: 100px;")
-        right_col.addWidget(self.polar_chart_label)
+        self.polar_chart_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        right_col.addWidget(self.polar_chart_label, stretch=2)
 
         self.heat_table_label = QLabel("[Best speedbar and glide chart (heat table) placeholder]")
         self.heat_table_label.setStyleSheet("background: #eee; border: 1px dashed #aaa; min-height: 100px;")
-        right_col.addWidget(self.heat_table_label)
-
-        right_col.addStretch(1)
+        self.heat_table_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        right_col.addWidget(self.heat_table_label, stretch=2)
 
         # Add columns to main layout
         main_layout.addLayout(left_col, 1)
