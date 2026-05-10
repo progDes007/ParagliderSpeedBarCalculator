@@ -17,7 +17,7 @@ def find_best_speedbar_and_glide(
         (best_percent, best_speed, best_glide)
         best_percent: float in [0, 1] (0=trim, 1=max)
         best_speed: speed (km/h)
-        best_glide: best glide (L/D)
+        best_glide: best glide 
     """
     best_glide = -float('inf')
     best_percent = 0.0
@@ -100,7 +100,7 @@ class MainWindow(QWidget):
         if trim_sink != 0:
             trim_speed_ms = trim_speed / 3.6
             trim_glide = trim_speed_ms / abs(trim_sink)
-            self.trim_glide_label.setText(f"Trim glide: {trim_glide:.2f} (L/D)")
+            self.trim_glide_label.setText(f"Trim glide: {trim_glide:.2f} ")
         else:
             self.trim_glide_label.setText("Trim glide: -- (invalid sink)")
 
@@ -108,7 +108,7 @@ class MainWindow(QWidget):
         if max_sink != 0:
             max_speed_ms = max_speed / 3.6
             max_glide = max_speed_ms / abs(max_sink)
-            self.max_glide_label.setText(f"Max speed glide: {max_glide:.2f} (L/D)")
+            self.max_glide_label.setText(f"Max speed glide: {max_glide:.2f} ")
         else:
             self.max_glide_label.setText("Max speed glide: -- (invalid sink)")
 
