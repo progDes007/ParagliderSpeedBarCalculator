@@ -145,8 +145,8 @@ class MainWindow(QWidget):
         self.polar_chart_label.setAlignment(Qt.AlignCenter)
 
         # --- Heatmap of best speedbar % and glide values ---
-        sink_vals = np.linspace(-2.2, 0, 11)
-        wind_vals = np.linspace(-20, 20, 11)
+        sink_vals = np.linspace(-2.5, 0, 11)
+        wind_vals = np.linspace(-20, 25, 11)
         heat = np.zeros((len(sink_vals), len(wind_vals)))
         glide_vals = np.zeros((len(sink_vals), len(wind_vals)))
         for i, air_sink in enumerate(sink_vals):
@@ -287,15 +287,15 @@ class MainWindow(QWidget):
         # Example stub values, replace with real ones in next step
         presets = [
             # EN-B
-            {"trim_speed": "36", "trim_sink": "1.11", "middle_speed": "42", "middle_sink": "1.36", "max_speed": "48", "max_sink": "1.90"},
+            {"trim_speed": "36", "trim_sink": "1.11", "middle_speed": "42", "middle_sink": "1.458", "max_speed": "48", "max_sink": "1.90"},
             # EN-B+
-            {"trim_speed": "38", "trim_sink": "1.05", "middle_speed": "44", "middle_sink": "1.32", "max_speed": "50", "max_sink": "1.85"},
+            {"trim_speed": "36", "trim_sink": "1.05", "middle_speed": "43", "middle_sink": "1.4052", "max_speed": "50", "max_sink": "1.85"},
             # EN-C
-            {"trim_speed": "39", "trim_sink": "1.03", "middle_speed": "46", "middle_sink": "1.31", "max_speed": "53", "max_sink": "1.84"},
+            {"trim_speed": "37", "trim_sink": "1.03", "middle_speed": "45", "middle_sink": "1.388", "max_speed": "53", "max_sink": "1.84"},
             # EN D
-            {"trim_speed": "40", "trim_sink": "0.98", "middle_speed": "48", "middle_sink": "1.3", "max_speed": "56", "max_sink": "1.83"},
+            {"trim_speed": "37", "trim_sink": "0.98", "middle_speed": "46.4", "middle_sink": "1.356", "max_speed": "56", "max_sink": "1.83"},
             # EN CCC
-            {"trim_speed": "41", "trim_sink": "0.93", "middle_speed": "52", "middle_sink": "1.25", "max_speed": "62", "max_sink": "1.91"},
+            {"trim_speed": "37", "trim_sink": "0.93", "middle_speed": "49.5", "middle_sink": "1.375", "max_speed": "62", "max_sink": "1.91"},
         ]
         preset = presets[idx]
         self.trim_speed.setText(preset["trim_speed"])

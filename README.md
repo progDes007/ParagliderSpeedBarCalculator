@@ -2,6 +2,25 @@
 
 This project helps paraglider pilots determine optimal speedbar usage for various conditions.
 
+
+User selects one of the polar curves from the list or provides custom polar curve. Then software plots the best speedbar and glide for various wind and sink.
+
+![Screenshot](screenshot.png)
+
+Note: This software is created via AI.
+
+## Preset
+
+The software is supplied with few presets for different paraglider classes.
+Values are taken from here:
+https://flybubble.com/blogs/blog/speed-to-fly-basics
+
+Note, that this page only gives 2 control points for polar curve. But polar curve is not a line. It is a quadratic. To fill the missing data I *assume* that glide slope is changing linearly over the speed range (i.e. the glide slope at the middle of spead range is average of glide slopes at the extremes).
+
+## Prerequsites
+
+Python 3 must be installed on the machin.
+
 ## Setup Instructions
 
 1. **Create and activate a virtual environment**
@@ -28,11 +47,3 @@ This project helps paraglider pilots determine optimal speedbar usage for variou
    ```sh
    python main.py
    ```
-
-## Requirements
-- Python 3.8+
-- PySide6
-
----
-
-This is an initial UI skeleton. Calculation logic and charts will be implemented in later steps.
