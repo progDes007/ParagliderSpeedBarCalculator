@@ -21,8 +21,9 @@ def find_best_speedbar_and_glide(
     """
     best_glide = -float('inf')
     best_percent = 0.0
-    for i in range(20):
-        percent = i / 9 if 9 > 0 else 0
+    n_steps = 50
+    for i in range(n_steps + 1):
+        percent = i / n_steps
         speed = min_speed + percent * (max_speed - min_speed)
         sink = polar_fn(speed)
         speed_ms = speed / 3.6
@@ -145,8 +146,8 @@ class MainWindow(QWidget):
         self.polar_chart_label.setAlignment(Qt.AlignCenter)
 
         # --- Heatmap of best speedbar % and glide values ---
-        sink_vals = np.linspace(-2.5, 0, 11)
-        wind_vals = np.linspace(-20, 25, 11)
+        sink_vals = np.linspace(-2.5, 0, 21)
+        wind_vals = np.linspace(-20, 25, 17)
         heat = np.zeros((len(sink_vals), len(wind_vals)))
         glide_vals = np.zeros((len(sink_vals), len(wind_vals)))
         for i, air_sink in enumerate(sink_vals):
