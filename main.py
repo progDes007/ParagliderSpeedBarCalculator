@@ -50,7 +50,25 @@ class MainWindow(QWidget):
             max_sink = float(self.max_sink.text())
         except ValueError:
             self.polar_chart_label.setText("<span style='color:red'>Please enter valid numbers for all polar parameters.</span>")
+            self.trim_glide_label.setText("Trim glide: --")
             return
+
+        # Calculate and display trim glide
+        # Convert speed from km/h to m/s for correct L/D calculation
+        if trim_sink != 0:
+            trim_speed_ms = trim_speed / 3.6
+            trim_glide = trim_speed_ms / abs(trim_sink)
+            self.trim_glide_label.setText(f"Trim glide: {trim_glide:.2f} (L/D)")
+        else:
+            self.trim_glide_label.setText("Trim glide: -- (invalid sink)")
+
+        # Calculate and display max speed glide
+        if max_sink != 0:
+            max_speed_ms = max_speed / 3.6
+            max_glide = max_speed_ms / abs(max_sink)
+            self.max_glide_label.setText(f"Max speed glide: {max_glide:.2f} (L/D)")
+        else:
+            self.max_glide_label.setText("Max speed glide: -- (invalid sink)")
 
         # Fit the quadratic curve
         polar_fn = fit_quadratic_curve(
@@ -85,9 +103,11 @@ class MainWindow(QWidget):
         self.polar_chart_label.setAlignment(Qt.AlignCenter)
 
     def init_ui(self):
-        main_layout = QVBoxLayout()
+        main_layout = QHBoxLayout()
 
-        # Polar parameters group
+        # --- Left column: Inputs ---
+        left_col = QVBoxLayout()
+
         polar_group = QGroupBox("Polar Curve Parameters")
         polar_layout = QFormLayout()
         self.trim_speed = QLineEdit()
@@ -103,26 +123,38 @@ class MainWindow(QWidget):
         polar_layout.addRow("Max speed (km/h):", self.max_speed)
         polar_layout.addRow("Max sink (m/s):", self.max_sink)
         polar_group.setLayout(polar_layout)
-        main_layout.addWidget(polar_group)
+        left_col.addWidget(polar_group)
 
-        # Calculate button
         self.calc_btn = QPushButton("Calculate")
-        main_layout.addWidget(self.calc_btn)
+        left_col.addWidget(self.calc_btn)
+        left_col.addStretch(1)
 
-        # Output: Best glide
-        self.best_glide_label = QLabel("Best glide: --")
-        main_layout.addWidget(self.best_glide_label)
+        # --- Right column: Outputs ---
+        right_col = QVBoxLayout()
 
-        # Output: Polar curve chart placeholder
+
+        # Glide row: Trim Glide and Max Speed Glide side by side
+        glide_row = QHBoxLayout()
+        self.trim_glide_label = QLabel("Trim glide: --")
+        glide_row.addWidget(self.trim_glide_label)
+        self.max_glide_label = QLabel("Max speed glide: --")
+        glide_row.addWidget(self.max_glide_label)
+        glide_row.addStretch(1)
+        right_col.addLayout(glide_row)
+
         self.polar_chart_label = QLabel("[Polar curve chart placeholder]")
         self.polar_chart_label.setStyleSheet("background: #eee; border: 1px dashed #aaa; min-height: 100px;")
-        main_layout.addWidget(self.polar_chart_label)
+        right_col.addWidget(self.polar_chart_label)
 
-        # Output: Heat table placeholder
         self.heat_table_label = QLabel("[Best speedbar and glide chart (heat table) placeholder]")
         self.heat_table_label.setStyleSheet("background: #eee; border: 1px dashed #aaa; min-height: 100px;")
-        main_layout.addWidget(self.heat_table_label)
+        right_col.addWidget(self.heat_table_label)
 
+        right_col.addStretch(1)
+
+        # Add columns to main layout
+        main_layout.addLayout(left_col, 1)
+        main_layout.addLayout(right_col, 2)
         self.setLayout(main_layout)
 
 if __name__ == "__main__":
