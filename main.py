@@ -21,7 +21,7 @@ def find_best_speedbar_and_glide(
     """
     best_glide = -float('inf')
     best_percent = 0.0
-    for i in range(10):
+    for i in range(20):
         percent = i / 9 if 9 > 0 else 0
         speed = min_speed + percent * (max_speed - min_speed)
         sink = polar_fn(speed)
