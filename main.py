@@ -81,11 +81,11 @@ class MainWindow(QWidget):
         # Read and validate user input
         try:
             trim_speed = float(self.trim_speed.text())
-            trim_sink = -float(self.trim_sink.text())
+            trim_sink = -abs(float(self.trim_sink.text()))
             middle_speed = float(self.middle_speed.text())
-            middle_sink = -float(self.middle_sink.text())
+            middle_sink = -abs(float(self.middle_sink.text()))
             max_speed = float(self.max_speed.text())
-            max_sink = -float(self.max_sink.text())
+            max_sink = -abs(float(self.max_sink.text()))
         except ValueError:
             self.polar_chart_label.setText("<span style='color:red'>Please enter valid numbers for all polar parameters.</span>")
             self.trim_glide_label.setText("Trim glide: --")
@@ -143,7 +143,7 @@ class MainWindow(QWidget):
         self.polar_chart_label.setAlignment(Qt.AlignCenter)
 
         # --- Heatmap of best speedbar % and glide values ---
-        sink_vals = np.linspace(0, 2.2, 11)
+        sink_vals = np.linspace(-2.2, 0, 11)
         wind_vals = np.linspace(-20, 20, 11)
         heat = np.zeros((len(sink_vals), len(wind_vals)))
         glide_vals = np.zeros((len(sink_vals), len(wind_vals)))
@@ -154,7 +154,7 @@ class MainWindow(QWidget):
                     trim_speed,
                     max_speed,
                     headwind / 3.6,
-                    air_sink
+                    -air_sink
                 )
                 heat[i, j] = best_percent
                 glide_vals[i, j] = best_glide
