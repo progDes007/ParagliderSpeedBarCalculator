@@ -1,3 +1,41 @@
+def find_best_speedbar_and_glide(
+    polar_fn: Callable[[float], float],
+    min_speed: float,
+    max_speed: float,
+    headwind: float,
+    air_sink: float,
+) -> Tuple[float, float, float]:
+    """
+    Finds the best speedbar position (as percent, 0=trim, 1=max) and glide for given conditions.
+    Inputs:
+        polar_fn: function mapping speed (km/h) to sink (m/s)
+        min_speed: trim speed (km/h)
+        max_speed: max speed (km/h)
+        headwind: headwind (m/s, positive)
+        air_sink: surrounding air sink (m/s)
+    Returns:
+        (best_percent, best_speed, best_glide)
+        best_percent: float in [0, 1] (0=trim, 1=max)
+        best_speed: speed (km/h)
+        best_glide: best glide (L/D)
+    """
+    best_glide = -float('inf')
+    best_percent = 0.0
+    for i in range(10):
+        percent = i / 9 if 9 > 0 else 0
+        speed = min_speed + percent * (max_speed - min_speed)
+        sink = polar_fn(speed)
+        speed_ms = speed / 3.6
+        real_speed = speed_ms - headwind
+        real_sink = sink - air_sink
+        if real_sink >= 0.0 or real_speed <= 0.0:
+            glide = 0.0
+        else:
+            glide = real_speed / abs(real_sink)
+        if glide > best_glide:
+            best_glide = glide
+            best_percent = percent
+    return best_percent, best_glide
 import sys
 from PySide6.QtWidgets import (
     QApplication, QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout,
@@ -43,11 +81,11 @@ class MainWindow(QWidget):
         # Read and validate user input
         try:
             trim_speed = float(self.trim_speed.text())
-            trim_sink = float(self.trim_sink.text())
+            trim_sink = -float(self.trim_sink.text())
             middle_speed = float(self.middle_speed.text())
-            middle_sink = float(self.middle_sink.text())
+            middle_sink = -float(self.middle_sink.text())
             max_speed = float(self.max_speed.text())
-            max_sink = float(self.max_sink.text())
+            max_sink = -float(self.max_sink.text())
         except ValueError:
             self.polar_chart_label.setText("<span style='color:red'>Please enter valid numbers for all polar parameters.</span>")
             self.trim_glide_label.setText("Trim glide: --")
@@ -57,7 +95,7 @@ class MainWindow(QWidget):
         # Convert speed from km/h to m/s for correct L/D calculation
         if trim_sink != 0:
             trim_speed_ms = trim_speed / 3.6
-            trim_glide = trim_speed_ms / abs(trim_sink)
+            trim_glide = -trim_speed_ms / abs(trim_sink)
             self.trim_glide_label.setText(f"Trim glide: {trim_glide:.2f} (L/D)")
         else:
             self.trim_glide_label.setText("Trim glide: -- (invalid sink)")
@@ -65,7 +103,7 @@ class MainWindow(QWidget):
         # Calculate and display max speed glide
         if max_sink != 0:
             max_speed_ms = max_speed / 3.6
-            max_glide = max_speed_ms / abs(max_sink)
+            max_glide = -max_speed_ms / abs(max_sink)
             self.max_glide_label.setText(f"Max speed glide: {max_glide:.2f} (L/D)")
         else:
             self.max_glide_label.setText("Max speed glide: -- (invalid sink)")
@@ -77,11 +115,9 @@ class MainWindow(QWidget):
             (max_speed, max_sink)
         )
 
-        # Sample the curve
+        # --- Polar curve plot ---
         speeds = np.linspace(trim_speed, max_speed, 100)
         sinks = [polar_fn(v) for v in speeds]
-
-        # Plot
         fig, ax = plt.subplots(figsize=(4, 2.5), dpi=100)
         ax.plot(speeds, sinks, label="Polar curve", color="blue")
         ax.scatter([trim_speed, middle_speed, max_speed], [trim_sink, middle_sink, max_sink], color="red", zorder=5)
@@ -90,9 +126,7 @@ class MainWindow(QWidget):
         ax.set_title("Polar Curve")
         ax.grid(True)
         ax.legend()
-
         fig.tight_layout()
-
         buf = BytesIO()
         plt.savefig(buf, format='png')
         plt.close(fig)
@@ -101,6 +135,45 @@ class MainWindow(QWidget):
         pixmap.loadFromData(buf.getvalue(), 'PNG')
         self.polar_chart_label.setPixmap(pixmap)
         self.polar_chart_label.setAlignment(Qt.AlignCenter)
+
+        # --- Heatmap of best speedbar % ---
+        # Grid: sink in [0, 3], headwind in [-20, 30]
+        sink_vals = np.linspace(0, 2.2, 11)
+        wind_vals = np.linspace(-20, 20, 11)
+        heat = np.zeros((len(sink_vals), len(wind_vals)))
+        for i, air_sink in enumerate(sink_vals):
+            for j, headwind in enumerate(wind_vals):
+                best_percent, _ = find_best_speedbar_and_glide(
+                    polar_fn,
+                    trim_speed,
+                    max_speed,
+                    headwind / 3.6,
+                    air_sink
+                )
+                heat[i, j] = best_percent
+
+        fig2, ax2 = plt.subplots(figsize=(4, 2.5), dpi=100)
+        c = ax2.imshow(
+            heat,
+            origin='lower',
+            aspect='auto',
+            extent=[wind_vals[0], wind_vals[-1], sink_vals[0], sink_vals[-1]],
+            cmap='viridis',
+            vmin=0, vmax=1
+        )
+        ax2.set_xlabel('Headwind (km/h)')
+        ax2.set_ylabel('Air sink (m/s)')
+        ax2.set_title('Best Speedbar % (0=trim, 1=max)')
+        fig2.colorbar(c, ax=ax2, label='Speedbar %')
+        fig2.tight_layout()
+        buf2 = BytesIO()
+        plt.savefig(buf2, format='png')
+        plt.close(fig2)
+        buf2.seek(0)
+        pixmap2 = QPixmap()
+        pixmap2.loadFromData(buf2.getvalue(), 'PNG')
+        self.heat_table_label.setPixmap(pixmap2)
+        self.heat_table_label.setAlignment(Qt.AlignCenter)
 
     def init_ui(self):
         main_layout = QHBoxLayout()
