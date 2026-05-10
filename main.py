@@ -69,6 +69,9 @@ def fit_quadratic_curve(p1: Tuple[float, float], p2: Tuple[float, float], p3: Tu
     a, b_, c = np.linalg.solve(A, b)
     return lambda x: a * x**2 + b_ * x + c
 
+
+from PySide6.QtCore import QTimer
+
 class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
@@ -76,6 +79,9 @@ class MainWindow(QWidget):
         self.init_ui()
 
         self.calc_btn.clicked.connect(self.on_calculate)
+        self._resize_timer = QTimer(self)
+        self._resize_timer.setSingleShot(True)
+        self._resize_timer.timeout.connect(self.on_calculate)
 
     def on_calculate(self):
         # Read and validate user input
@@ -197,8 +203,8 @@ class MainWindow(QWidget):
         self.heat_table_label.setAlignment(Qt.AlignCenter)
 
     def resizeEvent(self, event):
-        # Redraw plots at new size to avoid pixelation
-        self.on_calculate()
+        # Debounced redraw: restart timer on every resize event
+        self._resize_timer.start(150)  # 150 ms delay
         super().resizeEvent(event)
 
     def init_ui(self):
