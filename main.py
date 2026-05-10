@@ -95,7 +95,7 @@ class MainWindow(QWidget):
         # Convert speed from km/h to m/s for correct L/D calculation
         if trim_sink != 0:
             trim_speed_ms = trim_speed / 3.6
-            trim_glide = -trim_speed_ms / abs(trim_sink)
+            trim_glide = trim_speed_ms / abs(trim_sink)
             self.trim_glide_label.setText(f"Trim glide: {trim_glide:.2f} (L/D)")
         else:
             self.trim_glide_label.setText("Trim glide: -- (invalid sink)")
@@ -103,7 +103,7 @@ class MainWindow(QWidget):
         # Calculate and display max speed glide
         if max_sink != 0:
             max_speed_ms = max_speed / 3.6
-            max_glide = -max_speed_ms / abs(max_sink)
+            max_glide = max_speed_ms / abs(max_sink)
             self.max_glide_label.setText(f"Max speed glide: {max_glide:.2f} (L/D)")
         else:
             self.max_glide_label.setText("Max speed glide: -- (invalid sink)")
@@ -118,7 +118,13 @@ class MainWindow(QWidget):
         # --- Polar curve plot ---
         speeds = np.linspace(trim_speed, max_speed, 100)
         sinks = [polar_fn(v) for v in speeds]
-        fig, ax = plt.subplots(figsize=(4, 2.5), dpi=100)
+        # Get label size in pixels
+        label_width = max(self.polar_chart_label.width(), 100)
+        label_height = max(self.polar_chart_label.height(), 100)
+        dpi = 100
+        fig_width = label_width / dpi
+        fig_height = label_height / dpi
+        fig, ax = plt.subplots(figsize=(fig_width, fig_height), dpi=dpi)
         ax.plot(speeds, sinks, label="Polar curve", color="blue")
         ax.scatter([trim_speed, middle_speed, max_speed], [trim_sink, middle_sink, max_sink], color="red", zorder=5)
         ax.set_xlabel("Speed (km/h)")
@@ -152,7 +158,11 @@ class MainWindow(QWidget):
                 )
                 heat[i, j] = best_percent
 
-        fig2, ax2 = plt.subplots(figsize=(4, 2.5), dpi=100)
+        label2_width = max(self.heat_table_label.width(), 100)
+        label2_height = max(self.heat_table_label.height(), 100)
+        fig2_width = label2_width / dpi
+        fig2_height = label2_height / dpi
+        fig2, ax2 = plt.subplots(figsize=(fig2_width, fig2_height), dpi=dpi)
         c = ax2.imshow(
             heat,
             origin='lower',
@@ -174,6 +184,11 @@ class MainWindow(QWidget):
         pixmap2.loadFromData(buf2.getvalue(), 'PNG')
         self.heat_table_label.setPixmap(pixmap2)
         self.heat_table_label.setAlignment(Qt.AlignCenter)
+
+    def resizeEvent(self, event):
+        # Redraw plots at new size to avoid pixelation
+        self.on_calculate()
+        super().resizeEvent(event)
 
     def init_ui(self):
         main_layout = QHBoxLayout()
