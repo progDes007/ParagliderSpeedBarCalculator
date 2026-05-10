@@ -201,13 +201,31 @@ class MainWindow(QWidget):
     # No need to redraw on resize; pixmap will scale with label
 
     def init_ui(self):
+        from PySide6.QtWidgets import QComboBox, QMenu, QToolButton
         main_layout = QHBoxLayout()
 
         # --- Left column: Inputs ---
         left_col = QVBoxLayout()
 
         polar_group = QGroupBox("Polar Curve Parameters")
+
         polar_layout = QFormLayout()
+
+        # --- Set... button and dropdown (moved above entries) ---
+        set_layout = QHBoxLayout()
+        self.set_btn = QToolButton()
+        self.set_btn.setText("Set...")
+        self.set_menu = QMenu()
+        self.preset_names = ["EN-B", "EN-B+", "EN-C", "EN D", "EN CCC"]
+        for name in self.preset_names:
+            self.set_menu.addAction(name)
+        self.set_btn.setMenu(self.set_menu)
+        self.set_btn.setPopupMode(QToolButton.InstantPopup)
+        set_layout.addWidget(self.set_btn)
+        set_layout.addStretch(1)
+        polar_layout.addRow(set_layout)
+
+        # --- Polar curve entries ---
         self.trim_speed = QLineEdit()
         self.max_speed = QLineEdit()
         self.middle_speed = QLineEdit()
@@ -220,6 +238,7 @@ class MainWindow(QWidget):
         polar_layout.addRow("Middle sink (m/s):", self.middle_sink)
         polar_layout.addRow("Max speed (km/h):", self.max_speed)
         polar_layout.addRow("Max sink (m/s):", self.max_sink)
+
         polar_group.setLayout(polar_layout)
         left_col.addWidget(polar_group)
 
@@ -229,7 +248,6 @@ class MainWindow(QWidget):
 
         # --- Right column: Outputs ---
         right_col = QVBoxLayout()
-
 
         # Glide row: Trim Glide and Max Speed Glide side by side
         glide_row = QHBoxLayout()
@@ -256,6 +274,36 @@ class MainWindow(QWidget):
         main_layout.addLayout(left_col, 1)
         main_layout.addLayout(right_col, 2)
         self.setLayout(main_layout)
+
+        # --- Connect preset actions ---
+        for i, action in enumerate(self.set_menu.actions()):
+            action.triggered.connect(lambda checked, idx=i: self.apply_preset(idx))
+
+    def apply_preset(self, idx):
+        """
+        Set polar curve fields to preset values by index.
+        Values to be filled in next step.
+        """
+        # Example stub values, replace with real ones in next step
+        presets = [
+            # EN-B
+            {"trim_speed": "36", "trim_sink": "1.11", "middle_speed": "42", "middle_sink": "1.36", "max_speed": "48", "max_sink": "1.90"},
+            # EN-B+
+            {"trim_speed": "38", "trim_sink": "1.05", "middle_speed": "44", "middle_sink": "1.32", "max_speed": "50", "max_sink": "1.85"},
+            # EN-C
+            {"trim_speed": "39", "trim_sink": "1.03", "middle_speed": "46", "middle_sink": "1.31", "max_speed": "53", "max_sink": "1.84"},
+            # EN D
+            {"trim_speed": "40", "trim_sink": "0.98", "middle_speed": "48", "middle_sink": "1.3", "max_speed": "56", "max_sink": "1.83"},
+            # EN CCC
+            {"trim_speed": "41", "trim_sink": "0.93", "middle_speed": "52", "middle_sink": "1.25", "max_speed": "62", "max_sink": "1.91"},
+        ]
+        preset = presets[idx]
+        self.trim_speed.setText(preset["trim_speed"])
+        self.trim_sink.setText(preset["trim_sink"])
+        self.middle_speed.setText(preset["middle_speed"])
+        self.middle_sink.setText(preset["middle_sink"])
+        self.max_speed.setText(preset["max_speed"])
+        self.max_sink.setText(preset["max_sink"])
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
