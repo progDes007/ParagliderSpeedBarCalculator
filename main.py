@@ -79,9 +79,7 @@ class MainWindow(QWidget):
         self.init_ui()
 
         self.calc_btn.clicked.connect(self.on_calculate)
-        self._resize_timer = QTimer(self)
-        self._resize_timer.setSingleShot(True)
-        self._resize_timer.timeout.connect(self.on_calculate)
+
 
     def on_calculate(self):
         # Read and validate user input
@@ -124,12 +122,10 @@ class MainWindow(QWidget):
         # --- Polar curve plot ---
         speeds = np.linspace(trim_speed, max_speed, 100)
         sinks = [polar_fn(v) for v in speeds]
-        # Get label size in pixels
-        label_width = max(self.polar_chart_label.width(), 100)
-        label_height = max(self.polar_chart_label.height(), 100)
+        chart_width, chart_height = 630, 480
         dpi = 100
-        fig_width = label_width / dpi
-        fig_height = label_height / dpi
+        fig_width = chart_width / dpi
+        fig_height = chart_height / dpi
         fig, ax = plt.subplots(figsize=(fig_width, fig_height), dpi=dpi)
         ax.plot(speeds, sinks, label="Polar curve", color="blue")
         ax.scatter([trim_speed, middle_speed, max_speed], [trim_sink, middle_sink, max_sink], color="red", zorder=5)
@@ -165,10 +161,10 @@ class MainWindow(QWidget):
                 heat[i, j] = best_percent
                 glide_vals[i, j] = best_glide
 
-        label2_width = max(self.heat_table_label.width(), 100)
-        label2_height = max(self.heat_table_label.height(), 100)
-        fig2_width = label2_width / dpi
-        fig2_height = label2_height / dpi
+        # --- Heatmap plot ---
+        heatmap_width, heatmap_height = 640, 480
+        fig2_width = heatmap_width / dpi
+        fig2_height = heatmap_height / dpi
         fig2, ax2 = plt.subplots(figsize=(fig2_width, fig2_height), dpi=dpi)
         c = ax2.imshow(
             heat,
@@ -202,10 +198,7 @@ class MainWindow(QWidget):
         self.heat_table_label.setPixmap(pixmap2)
         self.heat_table_label.setAlignment(Qt.AlignCenter)
 
-    def resizeEvent(self, event):
-        # Debounced redraw: restart timer on every resize event
-        self._resize_timer.start(150)  # 150 ms delay
-        super().resizeEvent(event)
+    # No need to redraw on resize; pixmap will scale with label
 
     def init_ui(self):
         main_layout = QHBoxLayout()
@@ -250,14 +243,14 @@ class MainWindow(QWidget):
         from PySide6.QtWidgets import QSizePolicy
 
         self.polar_chart_label = QLabel("[Polar curve chart placeholder]")
-        self.polar_chart_label.setStyleSheet("background: #eee; border: 1px dashed #aaa; min-height: 100px;")
-        self.polar_chart_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        right_col.addWidget(self.polar_chart_label, stretch=2)
+        self.polar_chart_label.setStyleSheet("background: #eee; border: 1px dashed #aaa;")
+        self.polar_chart_label.setFixedSize(640, 480)
+        right_col.addWidget(self.polar_chart_label)
 
         self.heat_table_label = QLabel("[Best speedbar and glide chart (heat table) placeholder]")
-        self.heat_table_label.setStyleSheet("background: #eee; border: 1px dashed #aaa; min-height: 100px;")
-        self.heat_table_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        right_col.addWidget(self.heat_table_label, stretch=2)
+        self.heat_table_label.setStyleSheet("background: #eee; border: 1px dashed #aaa;")
+        self.heat_table_label.setFixedSize(640, 480)
+        right_col.addWidget(self.heat_table_label)
 
         # Add columns to main layout
         main_layout.addLayout(left_col, 1)
