@@ -142,14 +142,14 @@ class MainWindow(QWidget):
         self.polar_chart_label.setPixmap(pixmap)
         self.polar_chart_label.setAlignment(Qt.AlignCenter)
 
-        # --- Heatmap of best speedbar % ---
-        # Grid: sink in [0, 3], headwind in [-20, 30]
+        # --- Heatmap of best speedbar % and glide values ---
         sink_vals = np.linspace(0, 2.2, 11)
         wind_vals = np.linspace(-20, 20, 11)
         heat = np.zeros((len(sink_vals), len(wind_vals)))
+        glide_vals = np.zeros((len(sink_vals), len(wind_vals)))
         for i, air_sink in enumerate(sink_vals):
             for j, headwind in enumerate(wind_vals):
-                best_percent, _ = find_best_speedbar_and_glide(
+                best_percent, best_glide = find_best_speedbar_and_glide(
                     polar_fn,
                     trim_speed,
                     max_speed,
@@ -157,6 +157,7 @@ class MainWindow(QWidget):
                     air_sink
                 )
                 heat[i, j] = best_percent
+                glide_vals[i, j] = best_glide
 
         label2_width = max(self.heat_table_label.width(), 100)
         label2_height = max(self.heat_table_label.height(), 100)
@@ -168,9 +169,19 @@ class MainWindow(QWidget):
             origin='lower',
             aspect='auto',
             extent=[wind_vals[0], wind_vals[-1], sink_vals[0], sink_vals[-1]],
-            cmap='viridis',
+            cmap='gray',
             vmin=0, vmax=1
         )
+        # Add glide values as text inside each cell
+        for i in range(len(sink_vals)):
+            for j in range(len(wind_vals)):
+                x = wind_vals[j]
+                y = sink_vals[i]
+                val = glide_vals[i, j]
+                # Only annotate if value is positive
+                if val > 0:
+                    ax2.text(x, y, f"{val:.1f}", ha='center', va='center', color='red', fontsize=8)
+
         ax2.set_xlabel('Headwind (km/h)')
         ax2.set_ylabel('Air sink (m/s)')
         ax2.set_title('Best Speedbar % (0=trim, 1=max)')
