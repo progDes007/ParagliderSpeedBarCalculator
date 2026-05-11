@@ -144,8 +144,6 @@ class MainWindow(QWidget):
             max_sink = -abs(float(self.max_sink.text()))
             middle_speed = float(self.middle_speed.text())
             middle_sink = -abs(float(self.middle_sink.text()))
-            self.middle_speed.setDisabled(False)
-            self.middle_sink.setDisabled(False)
         except ValueError:
             self.polar_chart_label.setText("<span style='color:red'>Please enter valid numbers for all polar parameters.</span>")
             self.trim_glide_label.setText("Trim glide: --")
@@ -262,7 +260,7 @@ class MainWindow(QWidget):
     # No need to redraw on resize; pixmap will scale with label
 
     def init_ui(self):
-        from PySide6.QtWidgets import QComboBox, QMenu, QToolButton
+        from PySide6.QtWidgets import QComboBox, QMenu, QToolButton, QHBoxLayout
         main_layout = QHBoxLayout()
 
         # --- Left column: Inputs ---
@@ -288,7 +286,7 @@ class MainWindow(QWidget):
 
 
         # --- Polar curve entries ---
-        from PySide6.QtWidgets import QCheckBox
+        from PySide6.QtWidgets import QCheckBox, QLabel, QHBoxLayout
         self.trim_speed = QLineEdit()
         self.max_speed = QLineEdit()
         self.middle_speed = QLineEdit()
@@ -297,8 +295,16 @@ class MainWindow(QWidget):
         self.middle_sink = QLineEdit()
         polar_layout.addRow("Trim speed (km/h):", self.trim_speed)
         polar_layout.addRow("Trim sink (m/s):", self.trim_sink)
+        # --- Auto checkbox with '?' icon and tooltip ---
+        auto_row = QHBoxLayout()
         self.auto_middle_checkbox = QCheckBox("Auto")
-        polar_layout.addRow(self.auto_middle_checkbox)
+        auto_row.addWidget(self.auto_middle_checkbox)
+        self.auto_help_label = QLabel("<span style='color:#007acc; font-weight:bold; cursor:pointer;'>?</span>")
+        self.auto_help_label.setToolTip("Assumes that glide is degrading linearly between trim and max speed.")
+        self.auto_help_label.setStyleSheet("QLabel { padding-left: 4px; }")
+        auto_row.addWidget(self.auto_help_label)
+        auto_row.addStretch(1)
+        polar_layout.addRow(auto_row)
         polar_layout.addRow("Middle speed (km/h):", self.middle_speed)
         polar_layout.addRow("Middle sink (m/s):", self.middle_sink)
         polar_layout.addRow("Max speed (km/h):", self.max_speed)
