@@ -74,12 +74,65 @@ def fit_quadratic_curve(p1: Tuple[float, float], p2: Tuple[float, float], p3: Tu
 from PySide6.QtCore import QTimer
 
 class MainWindow(QWidget):
+
+
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Paraglider Speedbar Calculator")
         self.init_ui()
 
         self.calc_btn.clicked.connect(self.on_calculate)
+        self.auto_middle_checkbox.stateChanged.connect(self.on_auto_middle_changed)
+        # Connect boundary fields to recalculate middle point if Auto is checked
+        self.trim_speed.textChanged.connect(self.on_boundary_changed)
+        self.trim_sink.textChanged.connect(self.on_boundary_changed)
+        self.max_speed.textChanged.connect(self.on_boundary_changed)
+        self.max_sink.textChanged.connect(self.on_boundary_changed)
+    
+    def on_boundary_changed(self):
+            if self.auto_middle_checkbox.isChecked():
+                try:
+                    trim_speed = float(self.trim_speed.text())
+                    trim_sink = -abs(float(self.trim_sink.text()))
+                    max_speed = float(self.max_speed.text())
+                    max_sink = -abs(float(self.max_sink.text()))
+                    middle_speed, middle_sink = self.calculate_middle_point(trim_speed, trim_sink, max_speed, max_sink)
+                    self.middle_speed.setText(f"{middle_speed:.3f}")
+                    self.middle_sink.setText(f"{abs(middle_sink):.3f}")
+                except ValueError:
+                    self.middle_speed.setText("")
+                    self.middle_sink.setText("")
+
+    def on_auto_middle_changed(self, state):
+        if self.auto_middle_checkbox.isChecked():
+            try:
+                trim_speed = float(self.trim_speed.text())
+                trim_sink = -abs(float(self.trim_sink.text()))
+                max_speed = float(self.max_speed.text())
+                max_sink = -abs(float(self.max_sink.text()))
+                middle_speed, middle_sink = self.calculate_middle_point(trim_speed, trim_sink, max_speed, max_sink)
+                self.middle_speed.setText(f"{middle_speed:.3f}")
+                self.middle_sink.setText(f"{abs(middle_sink):.3f}")
+                self.middle_speed.setDisabled(True)
+                self.middle_sink.setDisabled(True)
+            except ValueError:
+                self.middle_speed.setText("")
+                self.middle_sink.setText("")
+                self.middle_speed.setDisabled(True)
+                self.middle_sink.setDisabled(True)
+        else:
+            self.middle_speed.setDisabled(False)
+            self.middle_sink.setDisabled(False)
+
+    def calculate_middle_point(self, trim_speed, trim_sink, max_speed, max_sink):
+        trim_glide = (trim_speed / 3.6) / trim_sink
+        max_speed_glide = (max_speed / 3.6) / max_sink
+        middle_glide = (trim_glide + max_speed_glide) / 2
+
+        middle_speed = (trim_speed + max_speed) / 2
+        middle_sink = -(middle_speed / 3.6) / middle_glide
+
+        return middle_speed, middle_sink
 
 
     def on_calculate(self):
@@ -87,10 +140,12 @@ class MainWindow(QWidget):
         try:
             trim_speed = float(self.trim_speed.text())
             trim_sink = -abs(float(self.trim_sink.text()))
-            middle_speed = float(self.middle_speed.text())
-            middle_sink = -abs(float(self.middle_sink.text()))
             max_speed = float(self.max_speed.text())
             max_sink = -abs(float(self.max_sink.text()))
+            middle_speed = float(self.middle_speed.text())
+            middle_sink = -abs(float(self.middle_sink.text()))
+            self.middle_speed.setDisabled(False)
+            self.middle_sink.setDisabled(False)
         except ValueError:
             self.polar_chart_label.setText("<span style='color:red'>Please enter valid numbers for all polar parameters.</span>")
             self.trim_glide_label.setText("Trim glide: --")
@@ -231,7 +286,9 @@ class MainWindow(QWidget):
         set_layout.addStretch(1)
         polar_layout.addRow(set_layout)
 
+
         # --- Polar curve entries ---
+        from PySide6.QtWidgets import QCheckBox
         self.trim_speed = QLineEdit()
         self.max_speed = QLineEdit()
         self.middle_speed = QLineEdit()
@@ -240,6 +297,8 @@ class MainWindow(QWidget):
         self.middle_sink = QLineEdit()
         polar_layout.addRow("Trim speed (km/h):", self.trim_speed)
         polar_layout.addRow("Trim sink (m/s):", self.trim_sink)
+        self.auto_middle_checkbox = QCheckBox("Auto")
+        polar_layout.addRow(self.auto_middle_checkbox)
         polar_layout.addRow("Middle speed (km/h):", self.middle_speed)
         polar_layout.addRow("Middle sink (m/s):", self.middle_sink)
         polar_layout.addRow("Max speed (km/h):", self.max_speed)
@@ -293,21 +352,20 @@ class MainWindow(QWidget):
         # Example stub values, replace with real ones in next step
         presets = [
             # EN-B
-            {"trim_speed": "36", "trim_sink": "1.11", "middle_speed": "42", "middle_sink": "1.458", "max_speed": "48", "max_sink": "1.90"},
+            {"trim_speed": "36", "trim_sink": "1.11", "max_speed": "48", "max_sink": "1.90"},
             # EN-B+
-            {"trim_speed": "36", "trim_sink": "1.05", "middle_speed": "43", "middle_sink": "1.4052", "max_speed": "50", "max_sink": "1.85"},
+            {"trim_speed": "36", "trim_sink": "1.05", "max_speed": "50", "max_sink": "1.85"},
             # EN-C
-            {"trim_speed": "37", "trim_sink": "1.03", "middle_speed": "45", "middle_sink": "1.388", "max_speed": "53", "max_sink": "1.84"},
+            {"trim_speed": "37", "trim_sink": "1.03", "max_speed": "53", "max_sink": "1.84"},
             # EN D
-            {"trim_speed": "37", "trim_sink": "0.98", "middle_speed": "46.4", "middle_sink": "1.356", "max_speed": "56", "max_sink": "1.83"},
+            {"trim_speed": "37", "trim_sink": "0.98", "max_speed": "56", "max_sink": "1.83"},
             # EN CCC
-            {"trim_speed": "37", "trim_sink": "0.93", "middle_speed": "49.5", "middle_sink": "1.375", "max_speed": "62", "max_sink": "1.91"},
+            {"trim_speed": "37", "trim_sink": "0.93", "max_speed": "62", "max_sink": "1.91"},
         ]
         preset = presets[idx]
         self.trim_speed.setText(preset["trim_speed"])
         self.trim_sink.setText(preset["trim_sink"])
-        self.middle_speed.setText(preset["middle_speed"])
-        self.middle_sink.setText(preset["middle_sink"])
+        self.auto_middle_checkbox.setChecked(True)  # Auto middle point for presets
         self.max_speed.setText(preset["max_speed"])
         self.max_sink.setText(preset["max_sink"])
 
