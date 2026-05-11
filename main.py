@@ -146,8 +146,15 @@ class MainWindow(QWidget):
         self.polar_chart_label.setAlignment(Qt.AlignCenter)
 
         # --- Heatmap of best speedbar % and glide values ---
-        sink_vals = np.linspace(-2.5, 0, 21)
-        wind_vals = np.linspace(-20, 25, 17)
+        range_sink = (-2.5, 0)  # m/s
+        range_wind = (-25, 25)   # km/h
+        steps_sink = 21
+        steps_wind = 17
+        sink_vals = np.linspace(range_sink[0], range_sink[1], steps_sink, endpoint=True)
+        wind_vals = np.linspace(range_wind[0], range_wind[1], steps_wind, endpoint=True)
+        hstep_sink = (range_sink[1] - range_sink[0]) / steps_sink * 0.5 
+        hstep_wind = (range_wind[1] - range_wind[0]) / steps_wind * 0.5
+        
         heat = np.zeros((len(sink_vals), len(wind_vals)))
         glide_vals = np.zeros((len(sink_vals), len(wind_vals)))
         for i, air_sink in enumerate(sink_vals):
@@ -171,19 +178,17 @@ class MainWindow(QWidget):
             heat,
             origin='lower',
             aspect='auto',
-            extent=[wind_vals[0], wind_vals[-1], sink_vals[0], sink_vals[-1]],
+            extent=[wind_vals[0] - hstep_wind, wind_vals[-1] + hstep_wind, sink_vals[0] - hstep_sink, sink_vals[-1] + hstep_sink],
             cmap='gray',
             vmin=0, vmax=1
         )
         # Add glide values as text inside each cell
-        for i in range(len(sink_vals)):
-            for j in range(len(wind_vals)):
-                x = wind_vals[j]
+        for i in range(len(sink_vals) ):
+            for j in range(len(wind_vals ) ):
+                x = wind_vals[j] 
                 y = sink_vals[i]
                 val = glide_vals[i, j]
-                # Only annotate if value is positive
-                if val > 0:
-                    ax2.text(x, y, f"{val:.1f}", ha='center', va='center', color='red', fontsize=8)
+                ax2.text(x, y, f"{val:.1f}", ha='center', va='center', color='red', fontsize=8)
 
         ax2.set_xlabel('Headwind (km/h)')
         ax2.set_ylabel('Air sink (m/s)')
