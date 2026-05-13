@@ -73,8 +73,15 @@ def fit_quadratic_curve(p1: Tuple[float, float], p2: Tuple[float, float], p3: Tu
 
 from PySide6.QtCore import QTimer
 
-class MainWindow(QWidget):
+presets = [
+    {"name": "EN-B",   "trim_speed": "36", "trim_sink": "1.11", "max_speed": "48", "max_sink": "1.90"},
+    {"name": "EN-B+",  "trim_speed": "36", "trim_sink": "1.05", "max_speed": "50", "max_sink": "1.85"},
+    {"name": "EN-C",   "trim_speed": "37", "trim_sink": "1.03", "max_speed": "53", "max_sink": "1.84"},
+    {"name": "EN D",   "trim_speed": "37", "trim_sink": "0.98", "max_speed": "56", "max_sink": "1.83"},
+    {"name": "EN CCC", "trim_speed": "37", "trim_sink": "0.93", "max_speed": "62", "max_sink": "1.91"},
+]
 
+class MainWindow(QWidget):
 
     def __init__(self):
         super().__init__()
@@ -275,9 +282,8 @@ class MainWindow(QWidget):
         self.set_btn = QToolButton()
         self.set_btn.setText("Set...")
         self.set_menu = QMenu()
-        self.preset_names = ["EN-B", "EN-B+", "EN-C", "EN D", "EN CCC"]
-        for name in self.preset_names:
-            self.set_menu.addAction(name)
+        for preset in presets:
+            self.set_menu.addAction(preset["name"])
         self.set_btn.setMenu(self.set_menu)
         self.set_btn.setPopupMode(QToolButton.InstantPopup)
         set_layout.addWidget(self.set_btn)
@@ -353,21 +359,7 @@ class MainWindow(QWidget):
     def apply_preset(self, idx):
         """
         Set polar curve fields to preset values by index.
-        Values to be filled in next step.
         """
-        # Example stub values, replace with real ones in next step
-        presets = [
-            # EN-B
-            {"trim_speed": "36", "trim_sink": "1.11", "max_speed": "48", "max_sink": "1.90"},
-            # EN-B+
-            {"trim_speed": "36", "trim_sink": "1.05", "max_speed": "50", "max_sink": "1.85"},
-            # EN-C
-            {"trim_speed": "37", "trim_sink": "1.03", "max_speed": "53", "max_sink": "1.84"},
-            # EN D
-            {"trim_speed": "37", "trim_sink": "0.98", "max_speed": "56", "max_sink": "1.83"},
-            # EN CCC
-            {"trim_speed": "37", "trim_sink": "0.93", "max_speed": "62", "max_sink": "1.91"},
-        ]
         preset = presets[idx]
         self.trim_speed.setText(preset["trim_speed"])
         self.trim_sink.setText(preset["trim_sink"])

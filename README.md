@@ -14,6 +14,7 @@ Note: This software is created via AI.
 The software is supplied with few presets for different paraglider classes.
 Values are taken from here:
 https://flybubble.com/blogs/blog/speed-to-fly-basics
+https://flyaboveall.store/pages/performance-by-the-numbers
 
 Note, that this page only gives 2 control points for polar curve. But polar curve is not a line. To fill the missing data some assumptions are taken. I *assume* that glide slope is changing linearly over the speed range (i.e. the glide slope at the middle of speed range is average of glide slopes at the trim and max speed).
 
