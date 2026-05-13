@@ -79,6 +79,22 @@ presets = [
     {"name": "EN-C",   "trim_speed": "37", "trim_sink": "1.03", "max_speed": "53", "max_sink": "1.84"},
     {"name": "EN D",   "trim_speed": "37", "trim_sink": "0.98", "max_speed": "56", "max_sink": "1.83"},
     {"name": "EN CCC", "trim_speed": "37", "trim_sink": "0.93", "max_speed": "62", "max_sink": "1.91"},
+    {"name": "Advance-Alpha (A)", 
+     "trim_speed": "38", "trim_sink": "1.26",
+      "middle_speed" : "44.0", "middle_sink": "1.50", 
+      "max_speed": "48", "max_sink": "1.8"},
+    {"name": "Advance-Epsilon (Mid B)", 
+     "trim_speed": "38", "trim_sink": "1.17",
+      "middle_speed" : "44.0", "middle_sink": "1.40", 
+      "max_speed": "53", "max_sink": "2.0"},
+    {"name": "Advance-Sigma (C)", 
+     "trim_speed": "39", "trim_sink": "1.17",
+      "middle_speed" : "47.0", "middle_sink": "1.50", 
+      "max_speed": "56.5", "max_sink": "2.2"},
+    {"name": "Advance-Omega (D)", 
+     "trim_speed": "41", "trim_sink": "1.14",
+      "middle_speed" : "50.0", "middle_sink": "1.50", 
+      "max_speed": "60.0", "max_sink": "2.2"}
 ]
 
 class MainWindow(QWidget):
@@ -359,13 +375,21 @@ class MainWindow(QWidget):
     def apply_preset(self, idx):
         """
         Set polar curve fields to preset values by index.
+        If middle_speed and middle_sink are present, use them and uncheck auto; otherwise, set auto.
         """
         preset = presets[idx]
         self.trim_speed.setText(preset["trim_speed"])
         self.trim_sink.setText(preset["trim_sink"])
-        self.auto_middle_checkbox.setChecked(True)  # Auto middle point for presets
         self.max_speed.setText(preset["max_speed"])
         self.max_sink.setText(preset["max_sink"])
+        if "middle_speed" in preset and "middle_sink" in preset:
+            self.middle_speed.setText(preset["middle_speed"])
+            self.middle_sink.setText(preset["middle_sink"])
+            self.auto_middle_checkbox.setChecked(False)
+            self.middle_speed.setDisabled(False)
+            self.middle_sink.setDisabled(False)
+        else:
+            self.auto_middle_checkbox.setChecked(True)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
