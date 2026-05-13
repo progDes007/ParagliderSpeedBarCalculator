@@ -1,3 +1,19 @@
+import sys
+import math
+from PySide6.QtWidgets import (
+    QApplication, QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout,
+    QFormLayout, QLineEdit, QGroupBox
+)
+from PySide6.QtGui import QPixmap
+from PySide6.QtCore import Qt
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import numpy as np
+from io import BytesIO
+
+from typing import Tuple, Callable
+
 def find_best_speedbar_and_glide(
     polar_fn: Callable[[float], float],
     min_speed: float,
@@ -37,20 +53,7 @@ def find_best_speedbar_and_glide(
             best_glide = glide
             best_percent = percent
     return best_percent, best_glide
-import sys
-from PySide6.QtWidgets import (
-    QApplication, QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout,
-    QFormLayout, QLineEdit, QGroupBox
-)
-from PySide6.QtGui import QPixmap
-from PySide6.QtCore import Qt
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-import numpy as np
-from io import BytesIO
 
-from typing import Tuple, Callable
 
 def fit_quadratic_curve(p1: Tuple[float, float], p2: Tuple[float, float], p3: Tuple[float, float]) -> Callable[[float], float]:
     """
@@ -146,11 +149,13 @@ class MainWindow(QWidget):
         else:
             self.middle_speed.setDisabled(False)
             self.middle_sink.setDisabled(False)
-
+    def lerp(self, a, b, t):
+        return a + (b - a) * t
+    
     def calculate_middle_point(self, trim_speed, trim_sink, max_speed, max_sink):
         trim_glide = (trim_speed / 3.6) / trim_sink
         max_speed_glide = (max_speed / 3.6) / max_sink
-        middle_glide = (trim_glide + max_speed_glide) / 2
+        middle_glide = self.lerp(trim_glide, max_speed_glide, 0.5**1.7)
 
         middle_speed = (trim_speed + max_speed) / 2
         middle_sink = -(middle_speed / 3.6) / middle_glide

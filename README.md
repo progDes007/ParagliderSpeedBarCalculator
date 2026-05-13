@@ -16,7 +16,7 @@ Values are taken from here:
 https://flybubble.com/blogs/blog/speed-to-fly-basics
 https://flyaboveall.store/pages/performance-by-the-numbers
 
-Note, that this page only gives 2 control points for polar curve. But polar curve is not a line. To fill the missing data some assumptions are taken. I *assume* that glide slope is changing linearly over the speed range (i.e. the glide slope at the middle of speed range is average of glide slopes at the trim and max speed).
+Note, that this page only gives 2 control points for polar curve. But polar curve is not a line. To fill the missing data some assumptions are taken. I *assume* that glide slope is changing according to power law x^1.7. This is a bit arbitrary and not physically grounded, but gives the shape similar to real polars I was able to find.
 
 ## Prerequsites
 
