@@ -131,47 +131,30 @@ class MainWindow(QWidget):
         self.init_ui()
 
         self.calc_btn.clicked.connect(self.on_calculate)
-        self.auto_middle_checkbox.stateChanged.connect(self.on_auto_middle_changed)
-        # Connect boundary fields to recalculate middle point if Auto is checked
-        self.trim_speed.textChanged.connect(self.on_boundary_changed)
-        self.trim_sink.textChanged.connect(self.on_boundary_changed)
-        self.max_speed.textChanged.connect(self.on_boundary_changed)
-        self.max_sink.textChanged.connect(self.on_boundary_changed)
-    
-    def on_boundary_changed(self):
-            if self.auto_middle_checkbox.isChecked():
-                try:
-                    trim_speed = float(self.trim_speed.text())
-                    trim_sink = -abs(float(self.trim_sink.text()))
-                    max_speed = float(self.max_speed.text())
-                    max_sink = -abs(float(self.max_sink.text()))
-                    middle_speed, middle_sink = self.calculate_middle_point(trim_speed, trim_sink, max_speed, max_sink)
-                    self.middle_speed.setText(f"{middle_speed:.3f}")
-                    self.middle_sink.setText(f"{abs(middle_sink):.3f}")
-                except ValueError:
-                    self.middle_speed.setText("")
-                    self.middle_sink.setText("")
+        self.specify_middle_checkbox.stateChanged.connect(self.on_specify_middle_changed)
+     
 
-    def on_auto_middle_changed(self, state):
-        if self.auto_middle_checkbox.isChecked():
+    def on_specify_middle_changed(self, state):
+        if self.specify_middle_checkbox.isChecked():
+            # Enable editing, and if empty or zero, set to calculated values
             try:
                 trim_speed = float(self.trim_speed.text())
                 trim_sink = -abs(float(self.trim_sink.text()))
                 max_speed = float(self.max_speed.text())
                 max_sink = -abs(float(self.max_sink.text()))
                 middle_speed, middle_sink = self.calculate_middle_point(trim_speed, trim_sink, max_speed, max_sink)
-                self.middle_speed.setText(f"{middle_speed:.3f}")
-                self.middle_sink.setText(f"{abs(middle_sink):.3f}")
-                self.middle_speed.setDisabled(True)
-                self.middle_sink.setDisabled(True)
-            except ValueError:
-                self.middle_speed.setText("")
-                self.middle_sink.setText("")
-                self.middle_speed.setDisabled(True)
-                self.middle_sink.setDisabled(True)
-        else:
+                # Only set if empty or zero
+                ms = self.middle_speed.text()
+                msi = self.middle_sink.text()
+                if ms.strip() == "" or float(ms) == 0.0:
+                    self.middle_speed.setText(f"{middle_speed:.3f}")
+                if msi.strip() == "" or float(msi) == 0.0:
+                    self.middle_sink.setText(f"{abs(middle_sink):.3f}")
+            except Exception:
+                pass
             self.middle_speed.setDisabled(False)
             self.middle_sink.setDisabled(False)
+
     def lerp(self, a, b, t):
         return a + (b - a) * t
     
@@ -218,14 +201,14 @@ class MainWindow(QWidget):
             self.max_glide_label.setText("Max speed glide: -- (invalid sink)")
 
         # Fit the quadratic curve
-        if self.auto_middle_checkbox.isChecked():
-            polar_fn = fit_polynomial2(
-                (trim_speed, trim_sink),
-                (max_speed, max_sink))
-        else:
+        if self.specify_middle_checkbox.isChecked():
             polar_fn = fit_polynomial3(
                 (trim_speed, trim_sink),
                 (middle_speed, middle_sink),
+                (max_speed, max_sink))
+        else:
+            polar_fn = fit_polynomial2(
+                (trim_speed, trim_sink),
                 (max_speed, max_sink))
 
         # --- Polar curve plot ---
@@ -381,16 +364,12 @@ class MainWindow(QWidget):
         self.middle_sink = QLineEdit()
         polar_layout.addRow("Trim speed (km/h):", self.trim_speed)
         polar_layout.addRow("Trim sink (m/s):", self.trim_sink)
-        # --- Auto checkbox with '?' icon and tooltip ---
-        auto_row = QHBoxLayout()
-        self.auto_middle_checkbox = QCheckBox("Auto")
-        auto_row.addWidget(self.auto_middle_checkbox)
-        self.auto_help_label = QLabel("<span style='color:#007acc; font-weight:bold; cursor:pointer;'>?</span>")
-        self.auto_help_label.setToolTip("Assumes that glide is degrading linearly between trim and max speed.")
-        self.auto_help_label.setStyleSheet("QLabel { padding-left: 4px; }")
-        auto_row.addWidget(self.auto_help_label)
-        auto_row.addStretch(1)
-        polar_layout.addRow(auto_row)
+        # --- Specify Mid Point checkbox with '?' icon and tooltip ---
+        specify_row = QHBoxLayout()
+        self.specify_middle_checkbox = QCheckBox("Specify Mid Point")
+        specify_row.addWidget(self.specify_middle_checkbox)
+        specify_row.addStretch(1)
+        polar_layout.addRow(specify_row)
         polar_layout.addRow("Middle speed (km/h):", self.middle_speed)
         polar_layout.addRow("Middle sink (m/s):", self.middle_sink)
         polar_layout.addRow("Max speed (km/h):", self.max_speed)
@@ -456,7 +435,7 @@ class MainWindow(QWidget):
     def apply_preset(self, idx):
         """
         Set polar curve fields to preset values by index.
-        If middle_speed and middle_sink are present, use them and uncheck auto; otherwise, set auto.
+        If middle_speed and middle_sink are present, enable Specify Mid Point; otherwise, auto-calculate.
         """
         preset = presets[idx]
         self.trim_speed.setText(preset["trim_speed"])
@@ -466,11 +445,11 @@ class MainWindow(QWidget):
         if "middle_speed" in preset and "middle_sink" in preset:
             self.middle_speed.setText(preset["middle_speed"])
             self.middle_sink.setText(preset["middle_sink"])
-            self.auto_middle_checkbox.setChecked(False)
+            self.specify_middle_checkbox.setChecked(True)
             self.middle_speed.setDisabled(False)
             self.middle_sink.setDisabled(False)
         else:
-            self.auto_middle_checkbox.setChecked(True)
+            self.specify_middle_checkbox.setChecked(False)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
