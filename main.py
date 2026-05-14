@@ -55,24 +55,18 @@ def find_best_speedbar_and_glide(
     return best_percent, best_glide
 
 
-def fit_quadratic_curve(p1: Tuple[float, float], p2: Tuple[float, float], p3: Tuple[float, float]) -> Callable[[float], float]:
-    """
-    Fit a quadratic curve y = ax^2 + bx + c through three points.
-    Returns a function y(x).
-    """
-    import numpy as np
-    x1, y1 = p1
-    x2, y2 = p2
-    x3, y3 = p3
-    A = np.array([
-        [x1**2, x1, 1],
-        [x2**2, x2, 1],
-        [x3**2, x3, 1],
-    ])
-    b = np.array([y1, y2, y3])
-    a, b_, c = np.linalg.solve(A, b)
-    return lambda x: a * x**2 + b_ * x + c
+def fit_polynomial(p1: Tuple[float, float], p2: Tuple[float, float]) -> Callable[[float], float]:
+    # it is assumed that glider is trimed so that that glide is optimal at trim speed.
+    # that means that derivative of glide at trim speed is 0,
+    # so constraints are:
+    # 1. Pass through p1 and p2
+    # 2. f'(p1[0]) = trim glide = m
+    # 3. given g(x) = f(x) / x, then g'(x0) = 0.  Meaning that glide is peaked at trim speed.
 
+    m = p1[1] / p1[0]  # glide at trim speed
+    # this curve satisfies above constraints
+    a = (p2[1] - m * p2[0]) / (p2[0] - p1[0])**2
+    return lambda x: a * (x - p1[0])**2 + m * (x - p1[0]) + p1[1]
 
 from PySide6.QtCore import QTimer
 
@@ -195,9 +189,8 @@ class MainWindow(QWidget):
             self.max_glide_label.setText("Max speed glide: -- (invalid sink)")
 
         # Fit the quadratic curve
-        polar_fn = fit_quadratic_curve(
+        polar_fn = fit_polynomial(
             (trim_speed, trim_sink),
-            (middle_speed, middle_sink),
             (max_speed, max_sink)
         )
 

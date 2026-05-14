@@ -16,7 +16,9 @@ Values are taken from here:
 https://flybubble.com/blogs/blog/speed-to-fly-basics
 https://flyaboveall.store/pages/performance-by-the-numbers
 
-Note, that this page only gives 2 control points for polar curve. But polar curve is not a line. To fill the missing data some assumptions are taken. I *assume* that glide slope is changing according to power law x^1.7. This is a bit arbitrary and not physically grounded, but gives the shape similar to real polars I was able to find.
+Note, that this page only gives 2 control points for polar curve. The curvature of the curve is derived automatically based on the assumption:
+1. The slope of the polar at trim speed = to glide.
+2. Glider is trimed such that glide is optimal at trim speed. Meaning that derivative of glide at trim speed = 0. This may NOT be true for high performance gliders.
 
 ## Prerequsites
 
