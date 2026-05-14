@@ -211,6 +211,8 @@ class MainWindow(QWidget):
         fig, ax = plt.subplots(figsize=(fig_width, fig_height), dpi=dpi)
         ax.plot(speeds, sinks, label="Polar curve", color="blue")
         ax.scatter([trim_speed, middle_speed, max_speed], [trim_sink, middle_sink, max_sink], color="red", zorder=5)
+        # Add dotted line representing the glide slope at trim speed
+        ax.plot([trim_speed*0.7, trim_speed], [trim_sink*0.7, trim_sink], linestyle=':', color='black', linewidth=2, label="Trim L/D")
         ax.set_xlabel("Speed (km/h)")
         ax.set_ylabel("Sink (m/s)")
         ax.set_title("Polar Curve")
