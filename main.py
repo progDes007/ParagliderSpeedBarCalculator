@@ -152,8 +152,11 @@ class MainWindow(QWidget):
                     self.middle_sink.setText(f"{abs(middle_sink):.3f}")
             except Exception:
                 pass
-            self.middle_speed.setDisabled(False)
-            self.middle_sink.setDisabled(False)
+            self.middle_speed.setVisible(True)
+            self.middle_sink.setVisible(True)
+        else:
+            self.middle_speed.setVisible(False)
+            self.middle_sink.setVisible(False)
 
     def lerp(self, a, b, t):
         return a + (b - a) * t
@@ -176,8 +179,9 @@ class MainWindow(QWidget):
             trim_sink = -abs(float(self.trim_sink.text()))
             max_speed = float(self.max_speed.text())
             max_sink = -abs(float(self.max_sink.text()))
-            middle_speed = float(self.middle_speed.text())
-            middle_sink = -abs(float(self.middle_sink.text()))
+            if self.specify_middle_checkbox.isChecked():
+                middle_speed = float(self.middle_speed.text())
+                middle_sink = -abs(float(self.middle_sink.text()))
         except ValueError:
             self.polar_chart_label.setText("<span style='color:red'>Please enter valid numbers for all polar parameters.</span>")
             self.trim_glide_label.setText("Trim glide: --")
@@ -220,7 +224,12 @@ class MainWindow(QWidget):
         fig_height = chart_height / dpi
         fig, ax = plt.subplots(figsize=(fig_width, fig_height), dpi=dpi)
         ax.plot(speeds, sinks, label="Polar curve", color="blue")
-        ax.scatter([trim_speed, middle_speed, max_speed], [trim_sink, middle_sink, max_sink], color="red", zorder=5)
+        polar_speeds = [trim_speed, max_speed]
+        polar_sinks = [trim_sink, max_sink]
+        if self.specify_middle_checkbox.isChecked():
+            polar_speeds.insert(1, middle_speed)
+            polar_sinks.insert(1, middle_sink)
+        ax.scatter(polar_speeds, polar_sinks, color="red", zorder=5)
         # Add dotted line representing the glide slope at trim speed
         ax.plot([trim_speed*0.7, trim_speed], [trim_sink*0.7, trim_sink], linestyle=':', color='black', linewidth=2, label="Trim L/D")
         ax.set_xlabel("Speed (km/h)")
@@ -298,7 +307,7 @@ class MainWindow(QWidget):
         self.heat_table_label.setAlignment(Qt.AlignCenter)
 
         # --- Speedbar % for Glide chart (X: glide, Y: speedbar) ---
-        wind_range = np.linspace(-trim_speed, trim_speed, 100)
+        wind_range = np.linspace(0, trim_speed, 100)
         glide_x = []
         speedbar_y = []
         for wind in wind_range:
@@ -359,9 +368,11 @@ class MainWindow(QWidget):
         self.trim_speed = QLineEdit()
         self.max_speed = QLineEdit()
         self.middle_speed = QLineEdit()
+        self.middle_speed.setVisible(False)
         self.trim_sink = QLineEdit()
         self.max_sink = QLineEdit()
         self.middle_sink = QLineEdit()
+        self.middle_sink.setVisible(False)
         polar_layout.addRow("Trim speed (km/h):", self.trim_speed)
         polar_layout.addRow("Trim sink (m/s):", self.trim_sink)
         # --- Specify Mid Point checkbox with '?' icon and tooltip ---
@@ -446,8 +457,8 @@ class MainWindow(QWidget):
             self.middle_speed.setText(preset["middle_speed"])
             self.middle_sink.setText(preset["middle_sink"])
             self.specify_middle_checkbox.setChecked(True)
-            self.middle_speed.setDisabled(False)
-            self.middle_sink.setDisabled(False)
+            self.middle_speed.setVisible(False)
+            self.middle_sink.setVisible(False)
         else:
             self.specify_middle_checkbox.setChecked(False)
 
