@@ -55,7 +55,7 @@ def find_best_speedbar_and_glide(
     return best_percent, best_glide
 
 
-def fit_polynomial(p1: Tuple[float, float], p2: Tuple[float, float]) -> Callable[[float], float]:
+def fit_polynomial2(p1: Tuple[float, float], p2: Tuple[float, float]) -> Callable[[float], float]:
     # it is assumed that glider is trimed so that that glide is optimal at trim speed.
     # that means that derivative of glide at trim speed is 0,
     # so constraints are:
@@ -67,6 +67,35 @@ def fit_polynomial(p1: Tuple[float, float], p2: Tuple[float, float]) -> Callable
     # this curve satisfies above constraints
     a = (p2[1] - m * p2[0]) / (p2[0] - p1[0])**2
     return lambda x: a * (x - p1[0])**2 + m * (x - p1[0]) + p1[1]
+
+def fit_polynomial3(p1: Tuple[float, float], p2: Tuple[float, float], p3: Tuple[float, float]) -> Callable[[float], float]:
+    #same as fit_polynomial2 but with additional constraint that it also passes through p3
+    x0 = p1[0]
+    x1 = p2[0]
+    x2 = p3[0]
+    y0 = p1[1]  
+    y1 = p2[1]
+    y2 = p3[1]
+
+    z0 = x0
+    z1 = x0
+    z2 = x1
+    z3 = x2
+
+    m = y0 / z0
+
+    c0 = y0
+    c1 = z0z1 = m
+    z1z2 = (y1-y0)/(x1-x0)
+    z2z3 = (y2-y1)/(x2-x1)
+    c2 = z0z1z2 = (z1z2-m) / (x1 - x0)
+    z0z1z2 = (z1z2-m) / (x1-x0)
+    z1z2z3 = (z2z3-z1z2) / (x2 - x0)
+    c3 = z0z1z2z3 = (z1z2z3-z0z1z2) / (x2-x0)
+
+    return lambda x: c0 + c1*(x-x0) + c2*(x-x0)**2 + c3*(x-x0)**2 * (x-x1)
+
+
 
 from PySide6.QtCore import QTimer
 
@@ -189,10 +218,15 @@ class MainWindow(QWidget):
             self.max_glide_label.setText("Max speed glide: -- (invalid sink)")
 
         # Fit the quadratic curve
-        polar_fn = fit_polynomial(
-            (trim_speed, trim_sink),
-            (max_speed, max_sink)
-        )
+        if self.auto_middle_checkbox.isChecked():
+            polar_fn = fit_polynomial2(
+                (trim_speed, trim_sink),
+                (max_speed, max_sink))
+        else:
+            polar_fn = fit_polynomial3(
+                (trim_speed, trim_sink),
+                (middle_speed, middle_sink),
+                (max_speed, max_sink))
 
         # --- Polar curve plot ---
         speeds = np.linspace(trim_speed, max_speed, 100)
