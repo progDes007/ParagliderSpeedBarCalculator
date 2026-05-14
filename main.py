@@ -344,19 +344,17 @@ class MainWindow(QWidget):
 
         self.calc_btn = QPushButton("Calculate")
         left_col.addWidget(self.calc_btn)
+        # Add glide labels under Calculate button
+        self.trim_glide_label = QLabel("Trim glide: --")
+        self.max_glide_label = QLabel("Max speed glide: --")
+        left_col.addWidget(self.trim_glide_label)
+        left_col.addWidget(self.max_glide_label)
         left_col.addStretch(1)
 
         # --- Right column: Outputs ---
         right_col = QVBoxLayout()
 
-        # Glide row: Trim Glide and Max Speed Glide side by side
-        glide_row = QHBoxLayout()
-        self.trim_glide_label = QLabel("Trim glide: --")
-        glide_row.addWidget(self.trim_glide_label)
-        self.max_glide_label = QLabel("Max speed glide: --")
-        glide_row.addWidget(self.max_glide_label)
-        glide_row.addStretch(1)
-        right_col.addLayout(glide_row)
+        # Glide labels are now in the left column, so remove from right column
 
         from PySide6.QtWidgets import QSizePolicy
 
