@@ -165,11 +165,11 @@ class MainWindow(QWidget):
                     self.middle_sink.setText(f"{abs(middle_sink):.3f}")
             except Exception:
                 pass
-            self.middle_speed.setVisible(True)
-            self.middle_sink.setVisible(True)
+            self.middle_speed.setDisabled(False)
+            self.middle_sink.setDisabled(False)
         else:
-            self.middle_speed.setVisible(False)
-            self.middle_sink.setVisible(False)
+            self.middle_speed.setDisabled(True)
+            self.middle_sink.setDisabled(True)
 
     def lerp(self, a, b, t):
         return a + (b - a) * t
@@ -403,11 +403,11 @@ class MainWindow(QWidget):
         self.trim_speed = QLineEdit()
         self.max_speed = QLineEdit()
         self.middle_speed = QLineEdit()
-        self.middle_speed.setVisible(False)
+        self.middle_speed.setDisabled(True)
         self.trim_sink = QLineEdit()
         self.max_sink = QLineEdit()
         self.middle_sink = QLineEdit()
-        self.middle_sink.setVisible(False)
+        self.middle_sink.setDisabled(True)
         polar_layout.addRow("Trim speed (km/h):", self.trim_speed)
         polar_layout.addRow("Trim sink (m/s):", self.trim_sink)
         # --- Specify Mid Point checkbox with '?' icon and tooltip ---
@@ -492,10 +492,12 @@ class MainWindow(QWidget):
             self.middle_speed.setText(preset["middle_speed"])
             self.middle_sink.setText(preset["middle_sink"])
             self.specify_middle_checkbox.setChecked(True)
-            self.middle_speed.setVisible(False)
-            self.middle_sink.setVisible(False)
+            self.middle_speed.setDisabled(True)
+            self.middle_sink.setDisabled(True)
         else:
             self.specify_middle_checkbox.setChecked(False)
+            self.middle_speed.setDisabled(False)
+            self.middle_sink.setDisabled(False)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
