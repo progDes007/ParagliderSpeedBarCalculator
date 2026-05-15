@@ -16,8 +16,7 @@ from typing import Tuple, Callable
 
 def find_best_speedbar_and_glide(
     polar_fn: Callable[[float], float],
-    min_speed: float,
-    max_speed: float,
+    speedbar_to_speed_fn: Callable[[float], float],
     headwind: float,
     air_sink: float,
 ) -> Tuple[float, float, float]:
@@ -25,8 +24,7 @@ def find_best_speedbar_and_glide(
     Finds the best speedbar position (as percent, 0=trim, 1=max) and glide for given conditions.
     Inputs:
         polar_fn: function mapping speed (km/h) to sink (m/s)
-        min_speed: trim speed (km/h)
-        max_speed: max speed (km/h)
+        speedbar_to_speed_fn: function mapping speedbar position (0=trim, 1=max) to speed (km/h)
         headwind: headwind (m/s, positive)
         air_sink: surrounding air sink (m/s)
     Returns:
@@ -40,7 +38,7 @@ def find_best_speedbar_and_glide(
     n_steps = 50
     for i in range(n_steps + 1):
         percent = i / n_steps
-        speed = min_speed + percent * (max_speed - min_speed)
+        speed = speedbar_to_speed_fn(percent)
         sink = polar_fn(speed)
         speed_ms = speed / 3.6
         real_speed = speed_ms - headwind
@@ -95,6 +93,21 @@ def fit_polynomial3(p1: Tuple[float, float], p2: Tuple[float, float], p3: Tuple[
 
     return lambda x: c0 + c1*(x-x0) + c2*(x-x0)**2 + c3*(x-x0)**2 * (x-x1)
 
+def speedbar_to_speed_fn_full(speedbar: float, trim_speed: float, max_speed: float) -> float:
+    # Assumes that speedbar is only rotating the profile (not deformning it)
+    # given the dimensions of paraglider, it can be assumed that AoA is linearly related to speedbar pos
+    # at normal AoA the lift is roughly linearly proportional to speed.
+    # Pushing speedbar also reduces the glide slope, this effects AoA. But my tests show that this
+    # effect is absolutely negligble, so it is not take into account
+
+    # Knowing that lift is proportional to square of the speed we can:
+
+    max_speed_pct = max_speed / trim_speed
+    max_speed_lift_pct = 1 / max_speed_pct**2
+
+    lift_pct = 1 + speedbar * (max_speed_lift_pct - 1)
+    speed = max_speed * (lift_pct/max_speed_lift_pct)**(-0.5)
+    return speed    
 
 
 from PySide6.QtCore import QTimer
@@ -214,6 +227,9 @@ class MainWindow(QWidget):
             polar_fn = fit_polynomial2(
                 (trim_speed, trim_sink),
                 (max_speed, max_sink))
+        
+        # How speedbar converts ot speed
+        speedbar_to_speed_fn = lambda percent: speedbar_to_speed_fn_full(percent, trim_speed, max_speed)
 
         # --- Polar curve plot ---
         speeds = np.linspace(trim_speed, max_speed, 100)
@@ -263,8 +279,7 @@ class MainWindow(QWidget):
             for j, headwind in enumerate(wind_vals):
                 best_percent, best_glide = find_best_speedbar_and_glide(
                     polar_fn,
-                    trim_speed,
-                    max_speed,
+                    speedbar_to_speed_fn,
                     headwind / 3.6,
                     -air_sink
                 )
@@ -306,6 +321,7 @@ class MainWindow(QWidget):
         self.heat_table_label.setPixmap(pixmap2)
         self.heat_table_label.setAlignment(Qt.AlignCenter)
 
+
         # --- Speedbar % for Glide chart (X: glide, Y: speedbar) ---
         wind_range = np.linspace(0, trim_speed, 100)
         glide_x = []
@@ -313,8 +329,7 @@ class MainWindow(QWidget):
         for wind in wind_range:
             best_percent, best_glide = find_best_speedbar_and_glide(
                 polar_fn,
-                trim_speed,
-                max_speed,
+                speedbar_to_speed_fn,
                 wind / 3.6,
                 0.0
             )
@@ -336,6 +351,26 @@ class MainWindow(QWidget):
         pixmap3.loadFromData(buf3.getvalue(), 'PNG')
         self.speedbar_glide_label.setPixmap(pixmap3)
         self.speedbar_glide_label.setAlignment(Qt.AlignCenter)
+
+        # --- Plot speedbar_to_speed_fn: for 10 evenly spaced speedbar % (0 to 1), plot (speedbar %, speed) ---
+        speedbar_samples = np.linspace(0, 1, 10)
+        speed_samples = [speedbar_to_speed_fn(percent) for percent in speedbar_samples]
+
+        fig4, ax4 = plt.subplots(figsize=(6.4, 4.8), dpi=100)
+        ax4.plot(speedbar_samples, speed_samples, color='blue', lw=2)
+        ax4.set_xlabel('Speedbar % (0=trim, 1=max)')
+        ax4.set_ylabel('Speed (km/h)')
+        ax4.set_title('Speed for Speedbar %')
+        ax4.grid(True)
+        fig4.tight_layout()
+        buf4 = BytesIO()
+        plt.savefig(buf4, format='png')
+        plt.close(fig4)
+        buf4.seek(0)
+        pixmap4 = QPixmap()
+        pixmap4.loadFromData(buf4.getvalue(), 'PNG')
+        self.empty_label.setPixmap(pixmap4)
+        self.empty_label.setAlignment(Qt.AlignCenter)
 
     # No need to redraw on resize; pixmap will scale with label
 
@@ -409,19 +444,19 @@ class MainWindow(QWidget):
         self.heat_table_label = QLabel("[Best speedbar and glide chart (heat table) placeholder]")
         self.heat_table_label.setStyleSheet("background: #eee; border: 1px dashed #aaa;")
         self.heat_table_label.setFixedSize(640, 480)
-        right_grid.addWidget(self.heat_table_label, 1, 0)
+        right_grid.addWidget(self.heat_table_label, 1, 1)
 
         # --- Add new empty chart: Speedbar % for Glide ---
         self.speedbar_glide_label = QLabel("[Speedbar % for Glide placeholder]")
         self.speedbar_glide_label.setStyleSheet("background: #eee; border: 1px dashed #aaa;")
         self.speedbar_glide_label.setFixedSize(640, 480)
-        right_grid.addWidget(self.speedbar_glide_label, 0, 1)
+        right_grid.addWidget(self.speedbar_glide_label, 1, 0)
 
         # --- Optionally, add a placeholder for future chart or leave empty ---
         self.empty_label = QLabel("")
         self.empty_label.setStyleSheet("background: #eee; border: 1px dashed #aaa;")
         self.empty_label.setFixedSize(640, 480)
-        right_grid.addWidget(self.empty_label, 1, 1)
+        right_grid.addWidget(self.empty_label, 0, 1)
 
         # --- Wrap left_col in a QWidget with fixed/minimum width ---
         left_widget = QWidget()
