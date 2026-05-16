@@ -492,12 +492,12 @@ class MainWindow(QWidget):
             self.middle_speed.setText(preset["middle_speed"])
             self.middle_sink.setText(preset["middle_sink"])
             self.specify_middle_checkbox.setChecked(True)
-            self.middle_speed.setDisabled(True)
-            self.middle_sink.setDisabled(True)
-        else:
-            self.specify_middle_checkbox.setChecked(False)
             self.middle_speed.setDisabled(False)
             self.middle_sink.setDisabled(False)
+        else:
+            self.specify_middle_checkbox.setChecked(False)
+            self.middle_speed.setDisabled(True)
+            self.middle_sink.setDisabled(True)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
