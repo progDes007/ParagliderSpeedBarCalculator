@@ -264,8 +264,8 @@ class MainWindow(QWidget):
         self.polar_chart_label.setAlignment(Qt.AlignCenter)
 
         # --- Heatmap of best speedbar % and glide values ---
-        range_sink = (-2.5, 0)  # m/s
-        range_wind = (-25, 25)   # km/h
+        range_sink = (1.5*max_sink, 0)  # m/s
+        range_wind = (-0.9 * trim_speed, +0.9*trim_speed)   # km/h
         steps_sink = 21
         steps_wind = 17
         sink_vals = np.linspace(range_sink[0], range_sink[1], steps_sink, endpoint=True)
