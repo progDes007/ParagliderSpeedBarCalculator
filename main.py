@@ -124,7 +124,7 @@ presets = [
       "max_speed": "48", "max_sink": "1.8"},
     {"name": "Advance-Epsilon (Mid B)", 
      "trim_speed": "38", "trim_sink": "1.17",
-      "middle_speed" : "44.0", "middle_sink": "1.40", 
+      "middle_speed" : "43.5", "middle_sink": "1.40", 
       "max_speed": "53", "max_sink": "2.0"},
     {"name": "Advance-Sigma (C)", 
      "trim_speed": "39", "trim_sink": "1.17",
