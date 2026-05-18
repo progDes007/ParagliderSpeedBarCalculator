@@ -17,13 +17,14 @@ https://flybubble.com/blogs/blog/speed-to-fly-basics
 https://flyaboveall.store/pages/performance-by-the-numbers
 
 Note, that this page only gives 2 or 3 control points for polar curve. The curvature of the curve is derived automatically based on the assumption:
-1. The slope of the polar at trim speed = to glide.
-2. Glider is trimed such that glide is optimal at trim speed. Meaning that derivative of glide at trim speed = 0. This may NOT be true for high performance gliders.
-3. Curve is quadratic when 2 points is specified and cubic when 3 points are specified.
+1. Glider is trimmed such that glide is optimal at trim speed. Meaning that:
+- the tangent of polar at trim speed passes through 0.
+- derivative of **glide** at trim speed = 0. This may **not** be true for high performance gliders.
+2. Curve is quadratic when 2 points is specified and cubic when 3 points are specified.
 
 ## Prerequsites
 
-Python 3 must be installed on the machin.
+Python 3 must be installed on the machine.
 
 ## Setup Instructions
 
