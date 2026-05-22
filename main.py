@@ -234,7 +234,7 @@ class MainWindow(QWidget):
         # --- Polar curve plot ---
         speeds = np.linspace(trim_speed, max_speed, 100)
         sinks = [polar_fn(v) for v in speeds]
-        chart_width, chart_height = 630, 480
+        chart_width, chart_height = 800, 600
         dpi = 100
         fig_width = chart_width / dpi
         fig_height = chart_height / dpi
@@ -287,7 +287,7 @@ class MainWindow(QWidget):
                 glide_vals[i, j] = best_glide
 
         # --- Heatmap plot ---
-        heatmap_width, heatmap_height = 640, 480
+        heatmap_width, heatmap_height = 800, 600
         fig2_width = heatmap_width / dpi
         fig2_height = heatmap_height / dpi
         fig2, ax2 = plt.subplots(figsize=(fig2_width, fig2_height), dpi=dpi)
@@ -336,7 +336,7 @@ class MainWindow(QWidget):
             glide_x.append(best_glide)
             speedbar_y.append(best_percent)
 
-        fig3, ax3 = plt.subplots(figsize=(6.4, 4.8), dpi=100)
+        fig3, ax3 = plt.subplots(figsize=(8.0, 6.0), dpi=100)
         ax3.plot(glide_x, speedbar_y, color='green', lw=2)
         ax3.set_xlabel('Glide')
         ax3.set_ylabel('Speedbar % (0=trim, 1=max)')
@@ -356,7 +356,7 @@ class MainWindow(QWidget):
         speedbar_samples = np.linspace(0, 1, 10)
         speed_samples = [speedbar_to_speed_fn(percent) for percent in speedbar_samples]
 
-        fig4, ax4 = plt.subplots(figsize=(6.4, 4.8), dpi=100)
+        fig4, ax4 = plt.subplots(figsize=(8.0, 6.0), dpi=100)
         ax4.plot(speedbar_samples, speed_samples, color='blue', lw=2)
         ax4.set_xlabel('Speedbar % (0=trim, 1=max)')
         ax4.set_ylabel('Speed (km/h)')
@@ -375,7 +375,7 @@ class MainWindow(QWidget):
     # No need to redraw on resize; pixmap will scale with label
 
     def init_ui(self):
-        from PySide6.QtWidgets import QComboBox, QMenu, QToolButton, QHBoxLayout, QGridLayout, QSizePolicy
+        from PySide6.QtWidgets import QComboBox, QMenu, QToolButton, QHBoxLayout, QSizePolicy, QTabWidget
 
         main_layout = QHBoxLayout()
 
@@ -433,30 +433,36 @@ class MainWindow(QWidget):
         left_col.addWidget(self.max_glide_label)
         left_col.addStretch(1)
 
-        # --- Right column: Outputs as 2x2 grid ---
-        right_grid = QGridLayout()
+        # --- Right column: outputs in tabs ---
+        right_tabs = QTabWidget()
+
+        def create_chart_tab(label: QLabel) -> QWidget:
+            tab = QWidget()
+            tab_layout = QVBoxLayout()
+            tab_layout.setContentsMargins(8, 8, 8, 8)
+            tab_layout.addWidget(label, alignment=Qt.AlignCenter)
+            tab.setLayout(tab_layout)
+            return tab
 
         self.polar_chart_label = QLabel("[Polar curve chart placeholder]")
         self.polar_chart_label.setStyleSheet("background: #eee; border: 1px dashed #aaa;")
-        self.polar_chart_label.setFixedSize(640, 480)
-        right_grid.addWidget(self.polar_chart_label, 0, 0)
+        self.polar_chart_label.setFixedSize(800, 600)
+        right_tabs.addTab(create_chart_tab(self.polar_chart_label), "Polar Curve")
+
+        self.speedbar_glide_label = QLabel("[Speedbar % for Glide placeholder]")
+        self.speedbar_glide_label.setStyleSheet("background: #eee; border: 1px dashed #aaa;")
+        self.speedbar_glide_label.setFixedSize(800, 600)
+        right_tabs.addTab(create_chart_tab(self.speedbar_glide_label), "Speedbar vs Glide")
 
         self.heat_table_label = QLabel("[Best speedbar and glide chart (heat table) placeholder]")
         self.heat_table_label.setStyleSheet("background: #eee; border: 1px dashed #aaa;")
-        self.heat_table_label.setFixedSize(640, 480)
-        right_grid.addWidget(self.heat_table_label, 1, 1)
+        self.heat_table_label.setFixedSize(800, 600)
+        right_tabs.addTab(create_chart_tab(self.heat_table_label), "Conditions Matrix")
 
-        # --- Add new empty chart: Speedbar % for Glide ---
-        self.speedbar_glide_label = QLabel("[Speedbar % for Glide placeholder]")
-        self.speedbar_glide_label.setStyleSheet("background: #eee; border: 1px dashed #aaa;")
-        self.speedbar_glide_label.setFixedSize(640, 480)
-        right_grid.addWidget(self.speedbar_glide_label, 1, 0)
-
-        # --- Optionally, add a placeholder for future chart or leave empty ---
         self.empty_label = QLabel("")
         self.empty_label.setStyleSheet("background: #eee; border: 1px dashed #aaa;")
-        self.empty_label.setFixedSize(640, 480)
-        right_grid.addWidget(self.empty_label, 0, 1)
+        self.empty_label.setFixedSize(800, 600)
+        right_tabs.addTab(create_chart_tab(self.empty_label), "Speedbar vs Speed")
 
         # --- Wrap left_col in a QWidget with fixed/minimum width ---
         left_widget = QWidget()
@@ -464,9 +470,11 @@ class MainWindow(QWidget):
         left_widget.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
         left_widget.setMinimumWidth(260)
 
-        # --- Wrap right_grid in a QWidget that expands ---
+        # --- Wrap right tabs in a QWidget that expands ---
         right_widget = QWidget()
-        right_widget.setLayout(right_grid)
+        right_layout = QVBoxLayout()
+        right_layout.addWidget(right_tabs)
+        right_widget.setLayout(right_layout)
         right_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
         # Add widgets to main layout (left fixed, right expands)
