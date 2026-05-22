@@ -12,8 +12,10 @@ Note: This software is created via AI.
 ## Presets
 
 The software is supplied with few presets for different paraglider classes.
-Values are taken from here:
+1. "Generic" paraglider values taken from here:
 https://flybubble.com/blogs/blog/speed-to-fly-basics
+They appear to be quite optimistic though. So I tuned them a bit to reduce top speed glide based on various other source in internet
+2. There is some data from advance listed here.
 https://flyaboveall.store/pages/performance-by-the-numbers
 
 Note, that this page only gives 2 or 3 control points for polar curve. The curvature of the curve is derived automatically based on the assumption:

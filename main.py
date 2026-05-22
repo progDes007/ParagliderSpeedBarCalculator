@@ -113,9 +113,9 @@ def speedbar_to_speed_fn_full(speedbar: float, trim_speed: float, max_speed: flo
 from PySide6.QtCore import QTimer
 
 presets = [
-    {"name": "EN-B",   "trim_speed": "39", "trim_sink": "1.20", "max_speed": "51.8", "max_sink": "2.052"},
-    {"name": "EN-B+",  "trim_speed": "39", "trim_sink": "1.134", "max_speed": "54", "max_sink": "1.998"},
-    {"name": "EN-C",   "trim_speed": "40", "trim_sink": "1.1124", "max_speed": "57.24", "max_sink": "1.9872"},
+    {"name": "EN-B",   "trim_speed": "39", "trim_sink": "1.20", "max_speed": "51.8", "max_sink": "2.07"},
+    {"name": "EN-B+",  "trim_speed": "39", "trim_sink": "1.134", "max_speed": "54", "max_sink": "2.05"},
+    {"name": "EN-C",   "trim_speed": "40", "trim_sink": "1.1124", "max_speed": "57.24", "max_sink": "2.02"},
     {"name": "EN D",   "trim_speed": "40", "trim_sink": "1.0584", "max_speed": "60.48", "max_sink": "1.9764"},
     {"name": "EN CCC", "trim_speed": "40", "trim_sink": "1.004", "max_speed": "66.96", "max_sink": "2.0628"},
     {"name": "Advance-Alpha (A)", 
