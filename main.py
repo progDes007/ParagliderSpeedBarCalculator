@@ -376,7 +376,6 @@ class MainWindow(QWidget):
         self.middle_sink.setDisabled(True)
         polar_layout.addRow("Trim speed (km/h):", self.trim_speed)
         polar_layout.addRow("Trim sink (m/s):", self.trim_sink)
-        # --- Specify Mid Point checkbox with '?' icon and tooltip ---
         specify_row = QHBoxLayout()
         self.specify_middle_checkbox = QCheckBox("Specify Mid Point")
         specify_row.addWidget(self.specify_middle_checkbox)
@@ -401,6 +400,15 @@ class MainWindow(QWidget):
         speedbar_mode_row.addWidget(self.speedbar_steps_mode)
         speedbar_mode_row.addStretch(1)
         speedbar_steps_layout.addLayout(speedbar_mode_row)
+
+        note_label = QLabel("Note: (hover me)")
+        note_label.setToolTip("It is recommended that you measure how much speed system line the"
+                              " each level of bar is actually pulling.\nThere are some geometric non-linearities"
+                              " and harness deformations. You may be surprised.\n"
+                              "Some gliders have markings on the line. These allow to eyeball it in the flight.\n"
+                              "If your last pedal doesn't pull all of the line, set the percentage accordingly (example: 90%%)")
+        note_label.setStyleSheet("color: #1565c0; font-weight: 700;")
+        speedbar_steps_layout.addWidget(note_label)
 
         self.step_rows = []
         self.step_inputs = []
