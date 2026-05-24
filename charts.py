@@ -219,9 +219,9 @@ def build_optimal_speedbar_pedal_chart_pixmap(
     fig, ax = plt.subplots(figsize=(fig_width, fig_height), dpi=dpi)
     ax.scatter(glide_x, pedal_y, color="tab:orange", s=14)
     ax.plot(glide_x, pedal_y, color="tab:orange", lw=1)
-    ax.set_xlabel(t("chart.optimal_pedal.axis_x"))
-    ax.set_ylabel(t("chart.optimal_pedal.axis_y"))
-    ax.set_title(t("chart.optimal_pedal.title"))
+    ax.set_xlabel(t("chart.optimal_step.axis_x"))
+    ax.set_ylabel(t("chart.optimal_step.axis_y"))
+    ax.set_title(t("chart.optimal_step.title"))
     if sorted_pedals:
         y_ticks = [pedal_index for pedal_index, _ in sorted_pedals]
         ax.set_yticks(y_ticks)

@@ -476,10 +476,10 @@ class MainWindow(QWidget):
         self.empty_label.setFixedSize(800, 600)
         right_tabs.addTab(create_chart_tab(self.empty_label), self.t("tab.speedbar_speed"))
 
-        self.optimal_pedal_label = QLabel(self.t("placeholder.optimal_pedal_chart"))
+        self.optimal_pedal_label = QLabel(self.t("placeholder.optimal_step_chart"))
         self.optimal_pedal_label.setStyleSheet("background: #eee; border: 1px dashed #aaa;")
         self.optimal_pedal_label.setFixedSize(800, 600)
-        right_tabs.addTab(create_chart_tab(self.optimal_pedal_label), self.t("tab.optimal_pedal"))
+        right_tabs.addTab(create_chart_tab(self.optimal_pedal_label), self.t("tab.optimal_step"))
 
         # --- Wrap left_col in a QWidget with fixed/minimum width ---
         left_widget = QWidget()
