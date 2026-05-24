@@ -27,12 +27,13 @@ def build_polar_curve_chart_pixmap(
     include_middle_point: bool,
     middle_speed: float,
     middle_sink: float,
+    chart_width: int,
+    chart_height: int,
+    dpi: int,
 ) -> QPixmap:
     speeds = np.linspace(trim_speed, max_speed, 100)
     sinks = [polar_fn(v) for v in speeds]
 
-    chart_width, chart_height = 800, 600
-    dpi = 100
     fig_width = chart_width / dpi
     fig_height = chart_height / dpi
     fig, ax = plt.subplots(figsize=(fig_width, fig_height), dpi=dpi)
@@ -72,6 +73,9 @@ def build_conditions_matrix_chart_pixmap(
     wind_range: Tuple[float, float],
     sink_steps: int,
     wind_steps: int,
+    chart_width: int,
+    chart_height: int,
+    dpi: int,
 ) -> QPixmap:
     sink_vals = np.linspace(sink_range[0], sink_range[1], sink_steps, endpoint=True)
     wind_vals = np.linspace(wind_range[0], wind_range[1], wind_steps, endpoint=True)
@@ -91,8 +95,6 @@ def build_conditions_matrix_chart_pixmap(
             heat[i, j] = best_percent
             glide_vals[i, j] = best_glide
 
-    chart_width, chart_height = 800, 600
-    dpi = 100
     cmap_name = "gray"
     text_color = "red"
     text_fontsize = 8
@@ -143,10 +145,11 @@ def build_speedbar_vs_glide_chart_pixmap(
     speedbar_to_speed_fn: Callable[[float], float],
     find_best_speedbar_and_glide_fn: Callable[[Callable[[float], float], Callable[[float], float], float, float], Tuple[float, float]],
     trim_speed: float,
+    chart_width: int,
+    chart_height: int,
+    dpi: int,
 ) -> QPixmap:
     wind_sample_count = 100
-    chart_width, chart_height = 800, 600
-    dpi = 100
     line_color = "green"
     line_width = 2
     wind_range = np.linspace(0, trim_speed, wind_sample_count)
@@ -182,10 +185,11 @@ def build_optimal_speedbar_pedal_chart_pixmap(
     glide_for_speedbar_and_conditions_fn: Callable[[Callable[[float], float], Callable[[float], float], float, float, float], float],
     trim_speed: float,
     pedal_map: Mapping[int, float],
+    chart_width: int,
+    chart_height: int,
+    dpi: int,
 ) -> QPixmap:
     wind_sample_count = 100
-    chart_width, chart_height = 800, 600
-    dpi = 100
     wind_range = np.linspace(0, trim_speed, wind_sample_count)
     glide_x = []
     pedal_y = []
@@ -228,12 +232,13 @@ def build_optimal_speedbar_pedal_chart_pixmap(
 
 def build_speedbar_vs_speed_chart_pixmap(
     speedbar_to_speed_fn: Callable[[float], float],
+    chart_width: int,
+    chart_height: int,
+    dpi: int,
 ) -> QPixmap:
     sample_count = 10
     speedbar_min = 0.0
     speedbar_max = 1.0
-    chart_width, chart_height = 800, 600
-    dpi = 100
     line_color = "blue"
     line_width = 2
     speedbar_samples = np.linspace(speedbar_min, speedbar_max, sample_count)

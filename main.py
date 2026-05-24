@@ -278,6 +278,9 @@ class MainWindow(QWidget):
             include_middle_point=self.specify_middle_checkbox.isChecked(),
             middle_speed=middle_speed if self.specify_middle_checkbox.isChecked() else 0.0,
             middle_sink=middle_sink if self.specify_middle_checkbox.isChecked() else 0.0,
+            chart_width=chart_width,
+            chart_height=chart_height,
+            dpi=dpi,
         )
         self.polar_chart_label.setPixmap(pixmap)
         self.polar_chart_label.setAlignment(Qt.AlignCenter)
@@ -294,6 +297,9 @@ class MainWindow(QWidget):
             wind_range=range_wind,
             sink_steps=steps_sink,
             wind_steps=steps_wind,
+            chart_width=chart_width,
+            chart_height=chart_height,
+            dpi=dpi,
         )
         self.heat_table_label.setPixmap(pixmap2)
         self.heat_table_label.setAlignment(Qt.AlignCenter)
@@ -303,12 +309,18 @@ class MainWindow(QWidget):
             speedbar_to_speed_fn=speedbar_to_speed_fn,
             find_best_speedbar_and_glide_fn=find_best_speedbar_and_glide,
             trim_speed=trim_speed,
+            chart_width=chart_width,
+            chart_height=chart_height,
+            dpi=dpi,
         )
         self.speedbar_glide_label.setPixmap(pixmap3)
         self.speedbar_glide_label.setAlignment(Qt.AlignCenter)
 
         pixmap4 = build_speedbar_vs_speed_chart_pixmap(
             speedbar_to_speed_fn=speedbar_to_speed_fn,
+            chart_width=chart_width,
+            chart_height=chart_height,
+            dpi=dpi,
         )
         self.empty_label.setPixmap(pixmap4)
         self.empty_label.setAlignment(Qt.AlignCenter)
@@ -319,6 +331,9 @@ class MainWindow(QWidget):
             glide_for_speedbar_and_conditions_fn=glide_for_speedbar_and_conditions,
             trim_speed=trim_speed,
             pedal_map=pedal_map,
+            chart_width=chart_width,
+            chart_height=chart_height,
+            dpi=dpi,
         )
         self.optimal_pedal_label.setPixmap(pixmap5)
         self.optimal_pedal_label.setAlignment(Qt.AlignCenter)
