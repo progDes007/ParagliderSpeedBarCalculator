@@ -11,16 +11,34 @@ from charts import (
     build_polar_curve_chart_pixmap,
     build_speedbar_vs_glide_chart_pixmap,
     build_speedbar_vs_speed_chart_pixmap,
+    build_optimal_speedbar_pedal_chart_pixmap,
 )
 
 from typing import Tuple, Callable
+
+
+def glide_for_speedbar_and_conditions(
+    polar_fn: Callable[[float], float],
+    speedbar_to_speed_fn: Callable[[float], float],
+    speedbar_percent: float,
+    headwind: float,
+    air_sink: float,
+) -> float:
+    speed = speedbar_to_speed_fn(speedbar_percent)
+    sink = polar_fn(speed)
+    speed_ms = speed / 3.6
+    real_speed = speed_ms - headwind
+    real_sink = sink - air_sink
+    if real_sink >= 0.0 or real_speed <= 0.0:
+        return 0.0
+    return real_speed / abs(real_sink)
 
 def find_best_speedbar_and_glide(
     polar_fn: Callable[[float], float],
     speedbar_to_speed_fn: Callable[[float], float],
     headwind: float,
     air_sink: float,
-) -> Tuple[float, float, float]:
+) -> Tuple[float, float]:
     """
     Finds the best speedbar position (as percent, 0=trim, 1=max) and glide for given conditions.
     Inputs:
@@ -29,9 +47,8 @@ def find_best_speedbar_and_glide(
         headwind: headwind (m/s, positive)
         air_sink: surrounding air sink (m/s)
     Returns:
-        (best_percent, best_speed, best_glide)
+        (best_percent, best_glide)
         best_percent: float in [0, 1] (0=trim, 1=max)
-        best_speed: speed (km/h)
         best_glide: best glide 
     """
     best_glide = -float('inf')
@@ -39,15 +56,13 @@ def find_best_speedbar_and_glide(
     n_steps = 50
     for i in range(n_steps + 1):
         percent = i / n_steps
-        speed = speedbar_to_speed_fn(percent)
-        sink = polar_fn(speed)
-        speed_ms = speed / 3.6
-        real_speed = speed_ms - headwind
-        real_sink = sink - air_sink
-        if real_sink >= 0.0 or real_speed <= 0.0:
-            glide = 0.0
-        else:
-            glide = real_speed / abs(real_sink)
+        glide = glide_for_speedbar_and_conditions(
+            polar_fn=polar_fn,
+            speedbar_to_speed_fn=speedbar_to_speed_fn,
+            speedbar_percent=percent,
+            headwind=headwind,
+            air_sink=air_sink,
+        )
         if glide > best_glide:
             best_glide = glide
             best_percent = percent
@@ -214,8 +229,11 @@ class MainWindow(QWidget):
         active_steps = 3 if self.speedbar_steps_mode.currentIndex() == 1 else 2
         step_values = [self.step_inputs[i].value() for i in range(active_steps)]
 
-        # Map uses numeric keys and normalized percentages (0..1).
-        speedbar_steps_map = {i + 1: step_values[i] / 100.0 for i in range(active_steps)}
+        # Pedal map uses numeric keys and normalized percentages (0..1).
+        # Pedal 0 is trim and should always map to 0% speedbar.
+        pedal_map = {0: 0.0}
+        for i in range(active_steps):
+            pedal_map[i + 1] = step_values[i] / 100.0
 
         # Calculate and display trim glide
         # Convert speed from km/h to m/s for correct L/D calculation
@@ -294,6 +312,16 @@ class MainWindow(QWidget):
         )
         self.empty_label.setPixmap(pixmap4)
         self.empty_label.setAlignment(Qt.AlignCenter)
+
+        pixmap5 = build_optimal_speedbar_pedal_chart_pixmap(
+            polar_fn=polar_fn,
+            speedbar_to_speed_fn=speedbar_to_speed_fn,
+            glide_for_speedbar_and_conditions_fn=glide_for_speedbar_and_conditions,
+            trim_speed=trim_speed,
+            pedal_map=pedal_map,
+        )
+        self.optimal_pedal_label.setPixmap(pixmap5)
+        self.optimal_pedal_label.setAlignment(Qt.AlignCenter)
 
     # No need to redraw on resize; pixmap will scale with label
 
@@ -424,6 +452,11 @@ class MainWindow(QWidget):
         self.empty_label.setStyleSheet("background: #eee; border: 1px dashed #aaa;")
         self.empty_label.setFixedSize(800, 600)
         right_tabs.addTab(create_chart_tab(self.empty_label), "Speedbar vs Speed")
+
+        self.optimal_pedal_label = QLabel("[Optimal speedbar pedal placeholder]")
+        self.optimal_pedal_label.setStyleSheet("background: #eee; border: 1px dashed #aaa;")
+        self.optimal_pedal_label.setFixedSize(800, 600)
+        right_tabs.addTab(create_chart_tab(self.optimal_pedal_label), "Optimal Speedbar Pedal")
 
         # --- Wrap left_col in a QWidget with fixed/minimum width ---
         left_widget = QWidget()

@@ -1,5 +1,5 @@
 from io import BytesIO
-from typing import Callable, Tuple
+from typing import Callable, Mapping, Tuple
 
 import matplotlib
 matplotlib.use("Agg")
@@ -170,6 +170,56 @@ def build_speedbar_vs_glide_chart_pixmap(
     ax.set_xlabel("Glide")
     ax.set_ylabel("Speedbar % (0=trim, 1=max)")
     ax.set_title("Speedbar % for Glide")
+    ax.grid(True)
+    fig.tight_layout()
+
+    return _figure_to_qpixmap(fig)
+
+
+def build_optimal_speedbar_pedal_chart_pixmap(
+    polar_fn: Callable[[float], float],
+    speedbar_to_speed_fn: Callable[[float], float],
+    glide_for_speedbar_and_conditions_fn: Callable[[Callable[[float], float], Callable[[float], float], float, float, float], float],
+    trim_speed: float,
+    pedal_map: Mapping[int, float],
+) -> QPixmap:
+    wind_sample_count = 100
+    chart_width, chart_height = 800, 600
+    dpi = 100
+    wind_range = np.linspace(0, trim_speed, wind_sample_count)
+    glide_x = []
+    pedal_y = []
+
+    sorted_pedals = sorted(pedal_map.items(), key=lambda item: item[0])
+    for wind in wind_range:
+        best_pedal = 0
+        best_glide = -float("inf")
+        headwind_ms = wind / 3.6
+        for pedal_index, speedbar_percent in sorted_pedals:
+            glide = glide_for_speedbar_and_conditions_fn(
+                polar_fn=polar_fn,
+                speedbar_to_speed_fn=speedbar_to_speed_fn,
+                speedbar_percent=speedbar_percent,
+                headwind=headwind_ms,
+                air_sink=0.0,
+            )
+            if glide > best_glide:
+                best_glide = glide
+                best_pedal = pedal_index
+        glide_x.append(best_glide)
+        pedal_y.append(best_pedal)
+
+    fig_width = chart_width / dpi
+    fig_height = chart_height / dpi
+    fig, ax = plt.subplots(figsize=(fig_width, fig_height), dpi=dpi)
+    ax.scatter(glide_x, pedal_y, color="tab:orange", s=14)
+    ax.plot(glide_x, pedal_y, color="tab:orange", lw=1)
+    ax.set_xlabel("Glide")
+    ax.set_ylabel("Optimal pedal")
+    ax.set_title("Optimal Speedbar Pedal")
+    if sorted_pedals:
+        y_ticks = [pedal_index for pedal_index, _ in sorted_pedals]
+        ax.set_yticks(y_ticks)
     ax.grid(True)
     fig.tight_layout()
 
