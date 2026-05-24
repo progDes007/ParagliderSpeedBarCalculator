@@ -106,7 +106,7 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "chart.polar.title": "Поляра",
         "chart.conditions.axis_x": "Встречный ветер (км/ч)",
         "chart.conditions.axis_y": "Снижение воздуха (м/с)",
-        "chart.conditions.title": "Оптимальый аксель для разных условий",
+        "chart.conditions.title": "Оптимальный аксель для разных условий",
         "chart.conditions.colorbar": "Процент акселя %",
         "chart.speedbar_glide.axis_x": "Глайд",
         "chart.speedbar_glide.axis_y": "Процент акселя (0=балансировочная, 1=максимум)",
