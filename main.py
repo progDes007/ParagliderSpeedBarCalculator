@@ -13,6 +13,7 @@ from charts import (
     build_speedbar_vs_speed_chart_pixmap,
     build_optimal_speedbar_pedal_chart_pixmap,
 )
+from localization import t, set_language, detect_language, get_language
 
 from typing import Tuple, Callable
 
@@ -156,7 +157,10 @@ class MainWindow(QWidget):
 
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Paraglider Speedbar Calculator")
+        set_language(detect_language())
+        self.t = t
+        self.language = get_language()
+        self.setWindowTitle(self.t("app.title"))
         self.init_ui()
 
         self.calc_btn.clicked.connect(self.on_calculate)
@@ -222,8 +226,8 @@ class MainWindow(QWidget):
                 middle_speed = float(self.middle_speed.text())
                 middle_sink = -abs(float(self.middle_sink.text()))
         except ValueError:
-            self.polar_chart_label.setText("<span style='color:red'>Please enter valid numbers for all polar parameters.</span>")
-            self.trim_glide_label.setText("Trim glide: --")
+            self.polar_chart_label.setText(self.t("error.invalid_polar_params_html"))
+            self.trim_glide_label.setText(self.t("label.trim_glide_placeholder"))
             return
 
         active_steps = 3 if self.speedbar_steps_mode.currentIndex() == 1 else 2
@@ -240,17 +244,17 @@ class MainWindow(QWidget):
         if trim_sink != 0:
             trim_speed_ms = trim_speed / 3.6
             trim_glide = trim_speed_ms / abs(trim_sink)
-            self.trim_glide_label.setText(f"Trim glide: {trim_glide:.2f} ")
+            self.trim_glide_label.setText(self.t("label.trim_glide_value", value=trim_glide))
         else:
-            self.trim_glide_label.setText("Trim glide: -- (invalid sink)")
+            self.trim_glide_label.setText(self.t("label.trim_glide_invalid_sink"))
 
         # Calculate and display max speed glide
         if max_sink != 0:
             max_speed_ms = max_speed / 3.6
             max_glide = max_speed_ms / abs(max_sink)
-            self.max_glide_label.setText(f"Max speed glide: {max_glide:.2f} ")
+            self.max_glide_label.setText(self.t("label.max_glide_value", value=max_glide))
         else:
-            self.max_glide_label.setText("Max speed glide: -- (invalid sink)")
+            self.max_glide_label.setText(self.t("label.max_glide_invalid_sink"))
 
         # Fit the quadratic curve
         if self.specify_middle_checkbox.isChecked():
@@ -348,13 +352,13 @@ class MainWindow(QWidget):
         # --- Left column: Inputs ---
         left_col = QVBoxLayout()
 
-        polar_group = QGroupBox("Polar Curve Parameters")
+        polar_group = QGroupBox(self.t("group.polar_curve_params"))
         polar_layout = QFormLayout()
 
         # --- Set... button and dropdown (moved above entries) ---
         set_layout = QHBoxLayout()
         self.set_btn = QToolButton()
-        self.set_btn.setText("Set...")
+        self.set_btn.setText(self.t("button.set"))
         self.set_menu = QMenu()
         for preset in presets:
             self.set_menu.addAction(preset["name"])
@@ -374,39 +378,35 @@ class MainWindow(QWidget):
         self.max_sink = QLineEdit()
         self.middle_sink = QLineEdit()
         self.middle_sink.setDisabled(True)
-        polar_layout.addRow("Trim speed (km/h):", self.trim_speed)
-        polar_layout.addRow("Trim sink (m/s):", self.trim_sink)
+        polar_layout.addRow(self.t("form.trim_speed"), self.trim_speed)
+        polar_layout.addRow(self.t("form.trim_sink"), self.trim_sink)
         specify_row = QHBoxLayout()
-        self.specify_middle_checkbox = QCheckBox("Specify Mid Point")
+        self.specify_middle_checkbox = QCheckBox(self.t("checkbox.specify_mid_point"))
         specify_row.addWidget(self.specify_middle_checkbox)
         specify_row.addStretch(1)
         polar_layout.addRow(specify_row)
-        polar_layout.addRow("Middle speed (km/h):", self.middle_speed)
-        polar_layout.addRow("Middle sink (m/s):", self.middle_sink)
-        polar_layout.addRow("Max speed (km/h):", self.max_speed)
-        polar_layout.addRow("Max sink (m/s):", self.max_sink)
+        polar_layout.addRow(self.t("form.middle_speed"), self.middle_speed)
+        polar_layout.addRow(self.t("form.middle_sink"), self.middle_sink)
+        polar_layout.addRow(self.t("form.max_speed"), self.max_speed)
+        polar_layout.addRow(self.t("form.max_sink"), self.max_sink)
 
         polar_group.setLayout(polar_layout)
         left_col.addWidget(polar_group)
 
-        speedbar_steps_group = QGroupBox("Speedbar Steps")
+        speedbar_steps_group = QGroupBox(self.t("group.speedbar_steps"))
         speedbar_steps_layout = QVBoxLayout()
 
         speedbar_mode_row = QHBoxLayout()
-        speedbar_mode_label = QLabel("Type:")
+        speedbar_mode_label = QLabel(self.t("label.type"))
         self.speedbar_steps_mode = QComboBox()
-        self.speedbar_steps_mode.addItems(["2 steps", "3 steps"])
+        self.speedbar_steps_mode.addItems([self.t("combo.two_steps"), self.t("combo.three_steps")])
         speedbar_mode_row.addWidget(speedbar_mode_label)
         speedbar_mode_row.addWidget(self.speedbar_steps_mode)
         speedbar_mode_row.addStretch(1)
         speedbar_steps_layout.addLayout(speedbar_mode_row)
 
-        note_label = QLabel("Note: (hover me)")
-        note_label.setToolTip("It is recommended that you measure how much speed system line the"
-                              " each level of bar is actually pulling.\nThere are some geometric non-linearities"
-                              " and harness deformations. You may be surprised.\n"
-                              "Some gliders have markings on the line. These allow to eyeball it in the flight.\n"
-                              "If your last pedal doesn't pull all of the line, set the percentage accordingly (example: 90%%)")
+        note_label = QLabel(self.t("label.note_hover"))
+        note_label.setToolTip(self.t("tooltip.speedbar_steps"))
         note_label.setStyleSheet("color: #1565c0; font-weight: 700;")
         speedbar_steps_layout.addWidget(note_label)
 
@@ -416,7 +416,7 @@ class MainWindow(QWidget):
             row = QWidget()
             row_layout = QHBoxLayout()
             row_layout.setContentsMargins(0, 0, 0, 0)
-            row_layout.addWidget(QLabel(f"Step {step_number}"))
+            row_layout.addWidget(QLabel(self.t("label.step_with_number", step_number=step_number)))
             row_layout.addStretch(1)
             amount_input = QDoubleSpinBox()
             amount_input.setRange(0.0, 100.0)
@@ -436,11 +436,11 @@ class MainWindow(QWidget):
         self.speedbar_steps_mode.currentIndexChanged.connect(self.on_speedbar_steps_mode_changed)
         self.on_speedbar_steps_mode_changed()
 
-        self.calc_btn = QPushButton("Calculate")
+        self.calc_btn = QPushButton(self.t("button.calculate"))
         left_col.addWidget(self.calc_btn)
         # Add glide labels under Calculate button
-        self.trim_glide_label = QLabel("Trim glide: --")
-        self.max_glide_label = QLabel("Max speed glide: --")
+        self.trim_glide_label = QLabel(self.t("label.trim_glide_placeholder"))
+        self.max_glide_label = QLabel(self.t("label.max_glide_placeholder"))
         left_col.addWidget(self.trim_glide_label)
         left_col.addWidget(self.max_glide_label)
         left_col.addStretch(1)
@@ -456,30 +456,30 @@ class MainWindow(QWidget):
             tab.setLayout(tab_layout)
             return tab
 
-        self.polar_chart_label = QLabel("[Polar curve chart placeholder]")
+        self.polar_chart_label = QLabel(self.t("placeholder.polar_chart"))
         self.polar_chart_label.setStyleSheet("background: #eee; border: 1px dashed #aaa;")
         self.polar_chart_label.setFixedSize(800, 600)
-        right_tabs.addTab(create_chart_tab(self.polar_chart_label), "Polar Curve")
+        right_tabs.addTab(create_chart_tab(self.polar_chart_label), self.t("tab.polar_curve"))
 
-        self.speedbar_glide_label = QLabel("[Speedbar % for Glide placeholder]")
+        self.speedbar_glide_label = QLabel(self.t("placeholder.speedbar_glide_chart"))
         self.speedbar_glide_label.setStyleSheet("background: #eee; border: 1px dashed #aaa;")
         self.speedbar_glide_label.setFixedSize(800, 600)
-        right_tabs.addTab(create_chart_tab(self.speedbar_glide_label), "Speedbar vs Glide")
+        right_tabs.addTab(create_chart_tab(self.speedbar_glide_label), self.t("tab.speedbar_glide"))
 
-        self.heat_table_label = QLabel("[Best speedbar and glide chart (heat table) placeholder]")
+        self.heat_table_label = QLabel(self.t("placeholder.conditions_matrix_chart"))
         self.heat_table_label.setStyleSheet("background: #eee; border: 1px dashed #aaa;")
         self.heat_table_label.setFixedSize(800, 600)
-        right_tabs.addTab(create_chart_tab(self.heat_table_label), "Conditions Matrix")
+        right_tabs.addTab(create_chart_tab(self.heat_table_label), self.t("tab.conditions_matrix"))
 
         self.empty_label = QLabel("")
         self.empty_label.setStyleSheet("background: #eee; border: 1px dashed #aaa;")
         self.empty_label.setFixedSize(800, 600)
-        right_tabs.addTab(create_chart_tab(self.empty_label), "Speedbar vs Speed")
+        right_tabs.addTab(create_chart_tab(self.empty_label), self.t("tab.speedbar_speed"))
 
-        self.optimal_pedal_label = QLabel("[Optimal speedbar pedal placeholder]")
+        self.optimal_pedal_label = QLabel(self.t("placeholder.optimal_pedal_chart"))
         self.optimal_pedal_label.setStyleSheet("background: #eee; border: 1px dashed #aaa;")
         self.optimal_pedal_label.setFixedSize(800, 600)
-        right_tabs.addTab(create_chart_tab(self.optimal_pedal_label), "Optimal Speedbar Pedal")
+        right_tabs.addTab(create_chart_tab(self.optimal_pedal_label), self.t("tab.optimal_pedal"))
 
         # --- Wrap left_col in a QWidget with fixed/minimum width ---
         left_widget = QWidget()

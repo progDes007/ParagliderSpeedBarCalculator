@@ -1,5 +1,6 @@
 from io import BytesIO
 from typing import Callable, Mapping, Tuple
+from localization import t
 
 import matplotlib
 matplotlib.use("Agg")
@@ -38,7 +39,7 @@ def build_polar_curve_chart_pixmap(
     fig_height = chart_height / dpi
     fig, ax = plt.subplots(figsize=(fig_width, fig_height), dpi=dpi)
 
-    ax.plot(speeds, sinks, label="Polar curve", color="blue")
+    ax.plot(speeds, sinks, label=t("chart.polar.legend_curve"), color="blue")
     polar_speeds = [trim_speed, max_speed]
     polar_sinks = [trim_sink, max_sink]
     if include_middle_point:
@@ -52,12 +53,12 @@ def build_polar_curve_chart_pixmap(
         linestyle=":",
         color="black",
         linewidth=2,
-        label="Trim L/D",
+        label=t("chart.polar.legend_trim_ld"),
     )
 
-    ax.set_xlabel("Speed (km/h)")
-    ax.set_ylabel("Sink (m/s)")
-    ax.set_title("Polar Curve")
+    ax.set_xlabel(t("chart.polar.axis_x"))
+    ax.set_ylabel(t("chart.polar.axis_y"))
+    ax.set_title(t("chart.polar.title"))
     ax.grid(True)
     ax.legend()
     fig.tight_layout()
@@ -131,10 +132,10 @@ def build_conditions_matrix_chart_pixmap(
                 fontsize=text_fontsize,
             )
 
-    ax.set_xlabel("Headwind (km/h)")
-    ax.set_ylabel("Air sink (m/s)")
-    ax.set_title("Best Speedbar % (0=trim, 1=max)")
-    fig.colorbar(image, ax=ax, label="Speedbar %")
+    ax.set_xlabel(t("chart.conditions.axis_x"))
+    ax.set_ylabel(t("chart.conditions.axis_y"))
+    ax.set_title(t("chart.conditions.title"))
+    fig.colorbar(image, ax=ax, label=t("chart.conditions.colorbar"))
     fig.tight_layout()
 
     return _figure_to_qpixmap(fig)
@@ -170,9 +171,9 @@ def build_speedbar_vs_glide_chart_pixmap(
     fig_height = chart_height / dpi
     fig, ax = plt.subplots(figsize=(fig_width, fig_height), dpi=dpi)
     ax.plot(glide_x, speedbar_y, color=line_color, lw=line_width)
-    ax.set_xlabel("Glide")
-    ax.set_ylabel("Speedbar % (0=trim, 1=max)")
-    ax.set_title("Speedbar % for Glide")
+    ax.set_xlabel(t("chart.speedbar_glide.axis_x"))
+    ax.set_ylabel(t("chart.speedbar_glide.axis_y"))
+    ax.set_title(t("chart.speedbar_glide.title"))
     ax.grid(True)
     fig.tight_layout()
 
@@ -218,9 +219,9 @@ def build_optimal_speedbar_pedal_chart_pixmap(
     fig, ax = plt.subplots(figsize=(fig_width, fig_height), dpi=dpi)
     ax.scatter(glide_x, pedal_y, color="tab:orange", s=14)
     ax.plot(glide_x, pedal_y, color="tab:orange", lw=1)
-    ax.set_xlabel("Glide")
-    ax.set_ylabel("Optimal pedal")
-    ax.set_title("Optimal Speedbar Pedal")
+    ax.set_xlabel(t("chart.optimal_pedal.axis_x"))
+    ax.set_ylabel(t("chart.optimal_pedal.axis_y"))
+    ax.set_title(t("chart.optimal_pedal.title"))
     if sorted_pedals:
         y_ticks = [pedal_index for pedal_index, _ in sorted_pedals]
         ax.set_yticks(y_ticks)
@@ -248,9 +249,9 @@ def build_speedbar_vs_speed_chart_pixmap(
     fig_height = chart_height / dpi
     fig, ax = plt.subplots(figsize=(fig_width, fig_height), dpi=dpi)
     ax.plot(speedbar_samples, speed_samples, color=line_color, lw=line_width)
-    ax.set_xlabel("Speedbar % (0=trim, 1=max)")
-    ax.set_ylabel("Speed (km/h)")
-    ax.set_title("Speed for Speedbar %")
+    ax.set_xlabel(t("chart.speedbar_speed.axis_x"))
+    ax.set_ylabel(t("chart.speedbar_speed.axis_y"))
+    ax.set_title(t("chart.speedbar_speed.title"))
     ax.grid(True)
     fig.tight_layout()
 
