@@ -4,13 +4,14 @@ from PySide6.QtWidgets import (
     QApplication, QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout,
     QFormLayout, QLineEdit, QGroupBox
 )
-from PySide6.QtGui import QPixmap
 from PySide6.QtCore import Qt
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-import numpy as np
-from io import BytesIO
+
+from charts import (
+    build_conditions_matrix_chart_pixmap,
+    build_polar_curve_chart_pixmap,
+    build_speedbar_vs_glide_chart_pixmap,
+    build_speedbar_vs_speed_chart_pixmap,
+)
 
 from typing import Tuple, Callable
 
@@ -247,144 +248,50 @@ class MainWindow(QWidget):
         # How speedbar converts ot speed
         speedbar_to_speed_fn = lambda percent: speedbar_to_speed_fn_full(percent, trim_speed, max_speed)
 
-        # --- Polar curve plot ---
-        speeds = np.linspace(trim_speed, max_speed, 100)
-        sinks = [polar_fn(v) for v in speeds]
         chart_width, chart_height = 800, 600
         dpi = 100
-        fig_width = chart_width / dpi
-        fig_height = chart_height / dpi
-        fig, ax = plt.subplots(figsize=(fig_width, fig_height), dpi=dpi)
-        ax.plot(speeds, sinks, label="Polar curve", color="blue")
-        polar_speeds = [trim_speed, max_speed]
-        polar_sinks = [trim_sink, max_sink]
-        if self.specify_middle_checkbox.isChecked():
-            polar_speeds.insert(1, middle_speed)
-            polar_sinks.insert(1, middle_sink)
-        ax.scatter(polar_speeds, polar_sinks, color="red", zorder=5)
-        # Add dotted line representing the glide slope at trim speed
-        ax.plot([trim_speed*0.7, trim_speed], [trim_sink*0.7, trim_sink], linestyle=':', color='black', linewidth=2, label="Trim L/D")
-        ax.set_xlabel("Speed (km/h)")
-        ax.set_ylabel("Sink (m/s)")
-        ax.set_title("Polar Curve")
-        ax.grid(True)
-        ax.legend()
-        fig.tight_layout()
-        buf = BytesIO()
-        plt.savefig(buf, format='png')
-        plt.close(fig)
-        buf.seek(0)
-        pixmap = QPixmap()
-        pixmap.loadFromData(buf.getvalue(), 'PNG')
+
+        pixmap = build_polar_curve_chart_pixmap(
+            polar_fn=polar_fn,
+            trim_speed=trim_speed,
+            trim_sink=trim_sink,
+            max_speed=max_speed,
+            max_sink=max_sink,
+            include_middle_point=self.specify_middle_checkbox.isChecked(),
+            middle_speed=middle_speed if self.specify_middle_checkbox.isChecked() else 0.0,
+            middle_sink=middle_sink if self.specify_middle_checkbox.isChecked() else 0.0,
+        )
         self.polar_chart_label.setPixmap(pixmap)
         self.polar_chart_label.setAlignment(Qt.AlignCenter)
 
-        # --- Heatmap of best speedbar % and glide values ---
         range_sink = (1.5*max_sink, 0)  # m/s
         range_wind = (-0.9 * trim_speed, +0.9*trim_speed)   # km/h
         steps_sink = 21
         steps_wind = 17
-        sink_vals = np.linspace(range_sink[0], range_sink[1], steps_sink, endpoint=True)
-        wind_vals = np.linspace(range_wind[0], range_wind[1], steps_wind, endpoint=True)
-        hstep_sink = (range_sink[1] - range_sink[0]) / steps_sink * 0.5 
-        hstep_wind = (range_wind[1] - range_wind[0]) / steps_wind * 0.5
-
-        heat = np.zeros((len(sink_vals), len(wind_vals)))
-        glide_vals = np.zeros((len(sink_vals), len(wind_vals)))
-        for i, air_sink in enumerate(sink_vals):
-            for j, headwind in enumerate(wind_vals):
-                best_percent, best_glide = find_best_speedbar_and_glide(
-                    polar_fn,
-                    speedbar_to_speed_fn,
-                    headwind / 3.6,
-                    -air_sink
-                )
-                heat[i, j] = best_percent
-                glide_vals[i, j] = best_glide
-
-        # --- Heatmap plot ---
-        heatmap_width, heatmap_height = 800, 600
-        fig2_width = heatmap_width / dpi
-        fig2_height = heatmap_height / dpi
-        fig2, ax2 = plt.subplots(figsize=(fig2_width, fig2_height), dpi=dpi)
-        c = ax2.imshow(
-            heat,
-            origin='lower',
-            aspect='auto',
-            extent=[wind_vals[0] - hstep_wind, wind_vals[-1] + hstep_wind, sink_vals[0] - hstep_sink, sink_vals[-1] + hstep_sink],
-            cmap='gray',
-            vmin=0, vmax=1
+        pixmap2 = build_conditions_matrix_chart_pixmap(
+            polar_fn=polar_fn,
+            speedbar_to_speed_fn=speedbar_to_speed_fn,
+            find_best_speedbar_and_glide_fn=find_best_speedbar_and_glide,
+            sink_range=range_sink,
+            wind_range=range_wind,
+            sink_steps=steps_sink,
+            wind_steps=steps_wind,
         )
-        # Add glide values as text inside each cell
-        for i in range(len(sink_vals)):
-            for j in range(len(wind_vals)):
-                x = wind_vals[j]
-                y = sink_vals[i]
-                val = glide_vals[i, j]
-                ax2.text(x, y, f"{val:.1f}", ha='center', va='center', color='red', fontsize=8)
-
-        ax2.set_xlabel('Headwind (km/h)')
-        ax2.set_ylabel('Air sink (m/s)')
-        ax2.set_title('Best Speedbar % (0=trim, 1=max)')
-        fig2.colorbar(c, ax=ax2, label='Speedbar %')
-        fig2.tight_layout()
-        buf2 = BytesIO()
-        plt.savefig(buf2, format='png')
-        plt.close(fig2)
-        buf2.seek(0)
-        pixmap2 = QPixmap()
-        pixmap2.loadFromData(buf2.getvalue(), 'PNG')
         self.heat_table_label.setPixmap(pixmap2)
         self.heat_table_label.setAlignment(Qt.AlignCenter)
 
-
-        # --- Speedbar % for Glide chart (X: glide, Y: speedbar) ---
-        wind_range = np.linspace(0, trim_speed, 100)
-        glide_x = []
-        speedbar_y = []
-        for wind in wind_range:
-            best_percent, best_glide = find_best_speedbar_and_glide(
-                polar_fn,
-                speedbar_to_speed_fn,
-                wind / 3.6,
-                0.0
-            )
-            glide_x.append(best_glide)
-            speedbar_y.append(best_percent)
-
-        fig3, ax3 = plt.subplots(figsize=(8.0, 6.0), dpi=100)
-        ax3.plot(glide_x, speedbar_y, color='green', lw=2)
-        ax3.set_xlabel('Glide')
-        ax3.set_ylabel('Speedbar % (0=trim, 1=max)')
-        ax3.set_title('Speedbar % for Glide')
-        ax3.grid(True)
-        fig3.tight_layout()
-        buf3 = BytesIO()
-        plt.savefig(buf3, format='png')
-        plt.close(fig3)
-        buf3.seek(0)
-        pixmap3 = QPixmap()
-        pixmap3.loadFromData(buf3.getvalue(), 'PNG')
+        pixmap3 = build_speedbar_vs_glide_chart_pixmap(
+            polar_fn=polar_fn,
+            speedbar_to_speed_fn=speedbar_to_speed_fn,
+            find_best_speedbar_and_glide_fn=find_best_speedbar_and_glide,
+            trim_speed=trim_speed,
+        )
         self.speedbar_glide_label.setPixmap(pixmap3)
         self.speedbar_glide_label.setAlignment(Qt.AlignCenter)
 
-        # --- Plot speedbar_to_speed_fn: for 10 evenly spaced speedbar % (0 to 1), plot (speedbar %, speed) ---
-        speedbar_samples = np.linspace(0, 1, 10)
-        speed_samples = [speedbar_to_speed_fn(percent) for percent in speedbar_samples]
-
-        fig4, ax4 = plt.subplots(figsize=(8.0, 6.0), dpi=100)
-        ax4.plot(speedbar_samples, speed_samples, color='blue', lw=2)
-        ax4.set_xlabel('Speedbar % (0=trim, 1=max)')
-        ax4.set_ylabel('Speed (km/h)')
-        ax4.set_title('Speed for Speedbar %')
-        ax4.grid(True)
-        fig4.tight_layout()
-        buf4 = BytesIO()
-        plt.savefig(buf4, format='png')
-        plt.close(fig4)
-        buf4.seek(0)
-        pixmap4 = QPixmap()
-        pixmap4.loadFromData(buf4.getvalue(), 'PNG')
+        pixmap4 = build_speedbar_vs_speed_chart_pixmap(
+            speedbar_to_speed_fn=speedbar_to_speed_fn,
+        )
         self.empty_label.setPixmap(pixmap4)
         self.empty_label.setAlignment(Qt.AlignCenter)
 
