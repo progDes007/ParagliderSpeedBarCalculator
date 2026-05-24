@@ -184,6 +184,16 @@ class MainWindow(QWidget):
 
         return middle_speed, middle_sink
 
+    def on_speedbar_steps_mode_changed(self):
+        is_three_step = self.speedbar_steps_mode.currentIndex() == 1
+        self.step_rows[2].setVisible(is_three_step)
+
+        # Apply recommended defaults for active mode.
+        defaults = [50.0, 100.0] if not is_three_step else [33.0, 66.0, 100.0]
+        active_count = 3 if is_three_step else 2
+        for i in range(active_count):
+            self.step_inputs[i].setValue(defaults[i])
+
 
     def on_calculate(self):
         # Read and validate user input
@@ -199,6 +209,12 @@ class MainWindow(QWidget):
             self.polar_chart_label.setText("<span style='color:red'>Please enter valid numbers for all polar parameters.</span>")
             self.trim_glide_label.setText("Trim glide: --")
             return
+
+        active_steps = 3 if self.speedbar_steps_mode.currentIndex() == 1 else 2
+        step_values = [self.step_inputs[i].value() for i in range(active_steps)]
+
+        # Map uses numeric keys and normalized percentages (0..1).
+        speedbar_steps_map = {i + 1: step_values[i] / 100.0 for i in range(active_steps)}
 
         # Calculate and display trim glide
         # Convert speed from km/h to m/s for correct L/D calculation
@@ -375,7 +391,7 @@ class MainWindow(QWidget):
     # No need to redraw on resize; pixmap will scale with label
 
     def init_ui(self):
-        from PySide6.QtWidgets import QComboBox, QMenu, QToolButton, QHBoxLayout, QSizePolicy, QTabWidget
+        from PySide6.QtWidgets import QComboBox, QMenu, QToolButton, QHBoxLayout, QSizePolicy, QTabWidget, QDoubleSpinBox
 
         main_layout = QHBoxLayout()
 
@@ -423,6 +439,44 @@ class MainWindow(QWidget):
 
         polar_group.setLayout(polar_layout)
         left_col.addWidget(polar_group)
+
+        speedbar_steps_group = QGroupBox("Speedbar Steps")
+        speedbar_steps_layout = QVBoxLayout()
+
+        speedbar_mode_row = QHBoxLayout()
+        speedbar_mode_label = QLabel("Type:")
+        self.speedbar_steps_mode = QComboBox()
+        self.speedbar_steps_mode.addItems(["2 steps", "3 steps"])
+        speedbar_mode_row.addWidget(speedbar_mode_label)
+        speedbar_mode_row.addWidget(self.speedbar_steps_mode)
+        speedbar_mode_row.addStretch(1)
+        speedbar_steps_layout.addLayout(speedbar_mode_row)
+
+        self.step_rows = []
+        self.step_inputs = []
+        for step_number in range(1, 4):
+            row = QWidget()
+            row_layout = QHBoxLayout()
+            row_layout.setContentsMargins(0, 0, 0, 0)
+            row_layout.addWidget(QLabel(f"Step {step_number}"))
+            row_layout.addStretch(1)
+            amount_input = QDoubleSpinBox()
+            amount_input.setRange(0.0, 100.0)
+            amount_input.setDecimals(1)
+            amount_input.setSingleStep(1.0)
+            amount_input.setSuffix(" %")
+            amount_input.setFixedWidth(110)
+            row_layout.addWidget(amount_input)
+            row.setLayout(row_layout)
+            self.step_rows.append(row)
+            self.step_inputs.append(amount_input)
+            speedbar_steps_layout.addWidget(row)
+
+        speedbar_steps_group.setLayout(speedbar_steps_layout)
+        left_col.addWidget(speedbar_steps_group)
+
+        self.speedbar_steps_mode.currentIndexChanged.connect(self.on_speedbar_steps_mode_changed)
+        self.on_speedbar_steps_mode_changed()
 
         self.calc_btn = QPushButton("Calculate")
         left_col.addWidget(self.calc_btn)
