@@ -358,7 +358,7 @@ class MainWindow(QWidget):
         # --- Set... button and dropdown (moved above entries) ---
         set_layout = QHBoxLayout()
         self.set_btn = QToolButton()
-        self.set_btn.setText(self.t("button.set"))
+        self.set_btn.setText(self.t("button.template"))
         self.set_menu = QMenu()
         for preset in presets:
             self.set_menu.addAction(preset["name"])

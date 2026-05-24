@@ -14,7 +14,7 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "label.max_glide_invalid_sink": "Max speed glide: -- (invalid sink)",
         "label.max_glide_value": "Max speed glide: {value:.2f} ",
         "group.polar_curve_params": "Polar Curve Parameters",
-        "button.set": "Set...",
+        "button.template": "Template...",
         "form.trim_speed": "Trim speed (km/h):",
         "form.trim_sink": "Trim sink (m/s):",
         "checkbox.specify_mid_point": "Specify Mid Point",
@@ -32,7 +32,7 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
             " each level of bar is actually pulling.\nThere are some geometric non-linearities"
             " and harness deformations. You may be surprised.\n"
             "Some gliders have markings on the line. These allow to eyeball it in the flight.\n"
-            "If your last step doesn't pull all of the line, set the percentage accordingly (example: 90%%)"
+            "If your last step doesn't pull all of the line, set the percentage accordingly (example: 90%)"
         ),
         "label.step_with_number": "Step {step_number}",
         "button.calculate": "Calculate",
@@ -52,11 +52,11 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "chart.polar.title": "Polar Curve",
         "chart.conditions.axis_x": "Headwind (km/h)",
         "chart.conditions.axis_y": "Air sink (m/s)",
-        "chart.conditions.title": "Best Speedbar % (0=trim, 1=max)",
+        "chart.conditions.title": "Optimal speedbar for different conditions",
         "chart.conditions.colorbar": "Speedbar %",
         "chart.speedbar_glide.axis_x": "Glide",
         "chart.speedbar_glide.axis_y": "Speedbar % (0=trim, 1=max)",
-        "chart.speedbar_glide.title": "Speedbar % for Glide",
+        "chart.speedbar_glide.title": "Optimal Speedbar for Glide",
         "chart.optimal_step.axis_x": "Glide",
         "chart.optimal_step.axis_y": "Optimal step",
         "chart.optimal_step.title": "Optimal Speedbar Step",
@@ -64,7 +64,7 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "chart.speedbar_speed.axis_y": "Speed (km/h)",
         "chart.speedbar_speed.title": "Speed for Speedbar %",
     },
-    "ru": {
+    "russian": {
         "error.invalid_polar_params_html": "<span style='color:red'>Введите корректные значения поляры.</span>",
         "label.trim_glide_placeholder": "Глайд на балансировочной: --",
         "label.trim_glide_invalid_sink": "Глайд на балансировочной: -- (некорректная скорость снижения)",
@@ -73,14 +73,14 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "label.max_glide_invalid_sink": "Глайд на максимальной: -- (invalid sink)",
         "label.max_glide_value": "Глайд на максимальной: {value:.2f} ",
         "group.polar_curve_params": "Параметры поляры",
-        "button.set": "Установить...",
+        "button.template": "Шаблон...",
         "form.trim_speed": "Балансировочная скорость (км/ч):",
-        "form.trim_sink": "Снижение на балансировочной (м/с):",
+        "form.trim_sink": "Снижение при ней (м/с):",
         "checkbox.specify_mid_point": "Указать промежуточную точку",
         "form.middle_speed": "Промежуточная скорость (км/ч):",
-        "form.middle_sink": "Промежуточное снижение (м/с):",
+        "form.middle_sink": "Снижение при ней (м/с):",
         "form.max_speed": "Максимальная скорость (км/ч):",
-        "form.max_sink": "Максимальное снижение (м/с):",
+        "form.max_sink": "Снижение при ней (м/с):",
         "group.speedbar_steps": "Ступени акселя",
         "label.type": "Тип:",
         "combo.two_steps": "2 ступени",
@@ -90,7 +90,7 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
             "Рекомендуется измерить, насколько каждая ступень системы скорости фактически тянет шнур акселя.\nЕсть некоторые геометрические нелинейности"
             " и деформации подвески. Вы можете быть удивлены результатом.\n"
             "Некоторые парапланы имеют маркировку на шнуре акселя. Это позволяет оценить в полете на глаз.\n"
-            "Если последняя ступень не тянет весь шнур до конца, установите процент соответственно (например: 90%%)"
+            "Если последняя ступень не тянет весь шнур до конца, установите процент соответственно (например: 90%)"
         ),
         "label.step_with_number": "Ступень {step_number}",
         "button.calculate": "Расчитать",
@@ -106,11 +106,11 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "chart.polar.title": "Поляра",
         "chart.conditions.axis_x": "Встречный ветер (км/ч)",
         "chart.conditions.axis_y": "Снижение воздуха (м/с)",
-        "chart.conditions.title": "Лучший процент акселя (0=балансировочная, 1=максимум)",
+        "chart.conditions.title": "Оптимальый аксель для разных условий",
         "chart.conditions.colorbar": "Процент акселя %",
         "chart.speedbar_glide.axis_x": "Глайд",
         "chart.speedbar_glide.axis_y": "Процент акселя (0=балансировочная, 1=максимум)",
-        "chart.speedbar_glide.title": "Процент акселя для глайда",
+        "chart.speedbar_glide.title": "Оптимальный аксель и оптимальный глайд",
         "chart.optimal_step.axis_x": "Глайд",
         "chart.optimal_step.axis_y": "Оптимальная ступень акселя",
         "chart.optimal_step.title": "Оптимальная ступень акселя",
