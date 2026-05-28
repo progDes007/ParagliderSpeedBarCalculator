@@ -65,8 +65,8 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "label.speed_system_type": "Speed System Type:",
         "combo.speed_system_type_linear": "Whole range linear (?)",
         "combo.speed_system_type_lockout_end": "At the end one of the pulleys is locked (?)",
-        "tooltip.speed_system_type_linear": "The line pulls pulleys of speed system at same rate over entire range.",
-        "tooltip.speed_system_type_lockout_end": "In the end of the range one of the pulleys is locked out. This turns 3-pulley system into 2-pulley system. And makes further pull 50% harder and 50% faster.",
+        "tooltip.speed_system_type_linear": "Speed system has 1 pulley. Or speed system has 2 pulleys and:\nthe line pulls pulleys of speed system at same rate over entire range.",
+        "tooltip.speed_system_type_lockout_end": "Speed system has 2 pulleys and:\n in the end of the range one of the pulleys is locked out. This turns 2-pulley system into 1-pulley system. And makes further pull 50% harder and 50% faster.",
     },
     "russian": {
         "error.invalid_polar_params_html": "<span style='color:red'>Введите корректные значения поляры.</span>",
@@ -123,8 +123,8 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "label.speed_system_type": "Тип системы:",
         "combo.speed_system_type_linear": "Линейная во всем диапазоне (?)",
         "combo.speed_system_type_lockout_end": "В конце диапазона один из блочков блокируется (?)",
-        "tooltip.speed_system_type_linear": "Шнур стягивает блочки с одинаковой скоростью во всем диапазоне.",
-        "tooltip.speed_system_type_lockout_end": "В конце диапазона один из блочков блокируется. Это превращает систему из 3х блоков в систему из 2х блоков. Что делает дальнейшее стягивание на 50% тяжелее и на 50% быстрее.",
+        "tooltip.speed_system_type_linear": "У крыла 1 блочок или у крыла 2 блочка и: \nШнур стягивает блочки с одинаковой скоростью во всем диапазоне.",
+        "tooltip.speed_system_type_lockout_end": "У крыла 2 блочка и:\nВ конце диапазона один из блочков блокируется. Это превращает систему из 2х блоков в систему из 1 блока. Что делает дальнейшее стягивание на 50% тяжелее и на 50% быстрее.",
     },
 }
 
