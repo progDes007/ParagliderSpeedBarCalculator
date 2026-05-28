@@ -29,9 +29,7 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "label.note_hover": "Note: (hover me)",
         "tooltip.speedbar_steps": (
             "It is recommended that you measure how much speed system line the"
-            " each level of bar is actually pulling.\nThere are some geometric non-linearities"
-            " and harness deformations. You may be surprised.\n"
-            "Some gliders have markings on the line. These allow to eyeball it in the flight.\n"
+            " each level of bar is actually pulling.\n"
             "If your last step doesn't pull all of the line, set the percentage accordingly (example: 90%)"
         ),
         "label.step_with_number": "Step {step_number}",
@@ -64,6 +62,11 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "chart.speedbar_speed.axis_y": "Speed (km/h)",
         "chart.speedbar_speed.title": "Speed for Speedbar %",
         "group.speed_system_wing": "Speed System (wing)",
+        "label.speed_system_type": "Speed System Type:",
+        "combo.speed_system_type_linear": "Whole range linear (?)",
+        "combo.speed_system_type_lockout_end": "At the end one of the pulleys is locked (?)",
+        "tooltip.speed_system_type_linear": "The line pulls pulleys of speed system at same rate over entire range.",
+        "tooltip.speed_system_type_lockout_end": "In the end of the range one of the pulleys is locked out. This turns 3-pulley system into 2-pulley system. And makes further pull 50% harder and 50% faster.",
     },
     "russian": {
         "error.invalid_polar_params_html": "<span style='color:red'>Введите корректные значения поляры.</span>",
@@ -88,9 +91,7 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "combo.three_steps": "3 ступени",
         "label.note_hover": "Примечание: (наведите курсор)",
         "tooltip.speedbar_steps": (
-            "Рекомендуется измерить, насколько каждая ступень системы скорости фактически тянет шнур акселя.\nЕсть некоторые геометрические нелинейности"
-            " и деформации подвески. Вы можете быть удивлены результатом.\n"
-            "Некоторые парапланы имеют маркировку на шнуре акселя. Это позволяет оценить в полете на глаз.\n"
+            "Рекомендуется измерить, насколько каждая ступень системы скорости фактически тянет шнур акселя.\n"
             "Если последняя ступень не тянет весь шнур до конца, установите процент соответственно (например: 90%)"
         ),
         "label.step_with_number": "Ступень {step_number}",
@@ -119,6 +120,11 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "chart.speedbar_speed.axis_y": "Скорость (км/ч)",
         "chart.speedbar_speed.title": "Скорость для акселя",
         "group.speed_system_wing": "Акселератор (крыло)",
+        "label.speed_system_type": "Тип системы:",
+        "combo.speed_system_type_linear": "Линейная во всем диапазоне (?)",
+        "combo.speed_system_type_lockout_end": "В конце диапазона один из блочков блокируется (?)",
+        "tooltip.speed_system_type_linear": "Шнур стягивает блочки с одинаковой скоростью во всем диапазоне.",
+        "tooltip.speed_system_type_lockout_end": "В конце диапазона один из блочков блокируется. Это превращает систему из 3х блоков в систему из 2х блоков. Что делает дальнейшее стягивание на 50% тяжелее и на 50% быстрее.",
     },
 }
 

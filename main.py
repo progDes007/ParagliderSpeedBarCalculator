@@ -396,6 +396,28 @@ class MainWindow(QWidget):
         #Speed system (in the wing) settings
         speed_system_group = QGroupBox(self.t("group.speed_system_wing"))
         speed_system_layout = QVBoxLayout()
+
+        speed_system_type_layout = QVBoxLayout()
+        speed_system_type_label = QLabel(self.t("label.speed_system_type"))
+        self.speed_system_type_combo = QComboBox()
+        self.speed_system_type_combo.addItems([
+            self.t("combo.speed_system_type_linear"),
+            self.t("combo.speed_system_type_lockout_end"),
+        ])
+        self.speed_system_type_combo.setItemData(
+            0,
+            self.t("tooltip.speed_system_type_linear"),
+            Qt.ToolTipRole,
+        )
+        self.speed_system_type_combo.setItemData(
+            1,
+            self.t("tooltip.speed_system_type_lockout_end"),
+            Qt.ToolTipRole,
+        )
+        speed_system_type_layout.addWidget(speed_system_type_label)
+        speed_system_type_layout.addWidget(self.speed_system_type_combo)
+        speed_system_layout.addLayout(speed_system_type_layout)
+
         speed_system_group.setLayout(speed_system_layout)
         left_col.addWidget(speed_system_group)
 
