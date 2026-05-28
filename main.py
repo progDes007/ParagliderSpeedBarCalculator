@@ -393,6 +393,13 @@ class MainWindow(QWidget):
         polar_group.setLayout(polar_layout)
         left_col.addWidget(polar_group)
 
+        #Speed system (in the wing) settings
+        speed_system_group = QGroupBox(self.t("group.speed_system_wing"))
+        speed_system_layout = QVBoxLayout()
+        speed_system_group.setLayout(speed_system_layout)
+        left_col.addWidget(speed_system_group)
+
+        #Speedbar step settings
         speedbar_steps_group = QGroupBox(self.t("group.speedbar_steps"))
         speedbar_steps_layout = QVBoxLayout()
 

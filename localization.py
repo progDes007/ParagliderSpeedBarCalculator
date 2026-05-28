@@ -63,6 +63,7 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "chart.speedbar_speed.axis_x": "Speedbar % (0=trim, 1=max)",
         "chart.speedbar_speed.axis_y": "Speed (km/h)",
         "chart.speedbar_speed.title": "Speed for Speedbar %",
+        "group.speed_system_wing": "Speed System (wing)",
     },
     "russian": {
         "error.invalid_polar_params_html": "<span style='color:red'>Введите корректные значения поляры.</span>",
@@ -81,7 +82,7 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "form.middle_sink": "Снижение при ней (м/с):",
         "form.max_speed": "Максимальная скорость (км/ч):",
         "form.max_sink": "Снижение при ней (м/с):",
-        "group.speedbar_steps": "Ступени акселя",
+        "group.speedbar_steps": "Акселератор (подвеска)",
         "label.type": "Тип:",
         "combo.two_steps": "2 ступени",
         "combo.three_steps": "3 ступени",
@@ -117,6 +118,7 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "chart.speedbar_speed.axis_x": "Процент акселя (0=балансировочная, 1=максимум)",
         "chart.speedbar_speed.axis_y": "Скорость (км/ч)",
         "chart.speedbar_speed.title": "Скорость для акселя",
+        "group.speed_system_wing": "Акселератор (крыло)",
     },
 }
 
