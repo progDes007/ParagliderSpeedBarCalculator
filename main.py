@@ -214,6 +214,11 @@ class MainWindow(QWidget):
         for i in range(active_count):
             self.step_inputs[i].setValue(defaults[i])
 
+    def on_speed_system_type_changed(self):
+        is_linear = self.speed_system_type_combo.currentIndex() == 0
+        self.pulley_block_row_widget.setVisible(not is_linear)
+        self.pulley_block_note_label.setVisible(not is_linear)
+
 
     def on_calculate(self):
         # Read and validate user input
@@ -401,21 +406,43 @@ class MainWindow(QWidget):
         speed_system_type_label = QLabel(self.t("label.speed_system_type"))
         self.speed_system_type_combo = QComboBox()
         self.speed_system_type_combo.addItems([
-            self.t("combo.speed_system_type_linear"),
-            self.t("combo.speed_system_type_lockout_end"),
+            self.t("combo.speed_system_type_1_stage"),
+            self.t("combo.speed_system_type_2_stage"),
         ])
         self.speed_system_type_combo.setItemData(
             0,
-            self.t("tooltip.speed_system_type_linear"),
+            self.t("tooltip.speed_system_type_1_stage"),
             Qt.ToolTipRole,
         )
         self.speed_system_type_combo.setItemData(
             1,
-            self.t("tooltip.speed_system_type_lockout_end"),
+            self.t("tooltip.speed_system_type_2_stage"),
             Qt.ToolTipRole,
         )
+
+        self.pulley_block_row_widget = QWidget()
+        pulley_block_row = QHBoxLayout()
+        pulley_block_row.setContentsMargins(0, 0, 0, 0)
+        pulley_block_label = QLabel(self.t("label.pulley_blocked_at"))
+        self.pulley_blocked_at_input = QDoubleSpinBox()
+        self.pulley_blocked_at_input.setRange(0.0, 100.0)
+        self.pulley_blocked_at_input.setDecimals(1)
+        self.pulley_blocked_at_input.setSingleStep(1.0)
+        self.pulley_blocked_at_input.setValue(80.0)
+        self.pulley_blocked_at_input.setSuffix(" %")
+        self.pulley_blocked_at_input.setFixedWidth(110)
+        pulley_block_row.addWidget(pulley_block_label)
+        pulley_block_row.addStretch(1)
+        pulley_block_row.addWidget(self.pulley_blocked_at_input)
+        self.pulley_block_row_widget.setLayout(pulley_block_row)
+
+        self.pulley_block_note_label = QLabel(self.t("label.pulley_blocked_note"))
+        self.pulley_block_note_label.setWordWrap(True)
+
         speed_system_type_layout.addWidget(speed_system_type_label)
         speed_system_type_layout.addWidget(self.speed_system_type_combo)
+        speed_system_type_layout.addWidget(self.pulley_block_row_widget)
+        speed_system_type_layout.addWidget(self.pulley_block_note_label)
         speed_system_layout.addLayout(speed_system_type_layout)
 
         speed_system_group.setLayout(speed_system_layout)
@@ -463,7 +490,9 @@ class MainWindow(QWidget):
         left_col.addWidget(speedbar_steps_group)
 
         self.speedbar_steps_mode.currentIndexChanged.connect(self.on_speedbar_steps_mode_changed)
+        self.speed_system_type_combo.currentIndexChanged.connect(self.on_speed_system_type_changed)
         self.on_speedbar_steps_mode_changed()
+        self.on_speed_system_type_changed()
 
         self.calc_btn = QPushButton(self.t("button.calculate"))
         left_col.addWidget(self.calc_btn)
