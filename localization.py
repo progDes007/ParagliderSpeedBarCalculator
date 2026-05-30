@@ -28,8 +28,9 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "combo.three_steps": "3 steps",
         "label.note_hover": "Note: (hover me)",
         "tooltip.speedbar_steps": (
-            "It is recommended that you measure how much speed system line the"
-            " each level of bar is actually pulling.\n"
+            "It is recommended that you measure how much speed system pulleys are pulled together"
+            " by each step of the speedbar. Nonlinearities are possible in the risers.\n"
+            "Some wings have one of the pulleys blocked at the end of the range.\n"
             "If your last step doesn't pull all of the line, set the percentage accordingly (example: 90%)"
         ),
         "label.step_with_number": "Step {step_number}",
@@ -93,8 +94,9 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "combo.three_steps": "3 ступени",
         "label.note_hover": "Примечание: (наведите курсор)",
         "tooltip.speedbar_steps": (
-            "Рекомендуется измерить, насколько каждая ступень системы скорости фактически тянет шнур акселя.\n"
-            "Если последняя ступень не тянет весь шнур до конца, установите процент соответственно (например: 90%)"
+            "Рекомендуется измерить, насколько каждая ступень фактически смыкает блочки.\n"
+            "У крыла может быть нелинейная система (одни из блочков может блокироваться).\n"
+            "Если последняя ступень не смыкает блочки до конца, установите процент соответственно (например: 90%)"
         ),
         "label.step_with_number": "Ступень {step_number}",
         "button.calculate": "Расчитать",
