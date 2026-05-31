@@ -23,6 +23,7 @@ Note, that this page only gives 2 or 3 control points for polar curve. The curva
 - the tangent of polar at trim speed passes through 0.
 - derivative of **glide** at trim speed = 0. This may **not** be true for high performance gliders.
 2. Curve is quadratic when 2 points is specified and cubic when 3 points are specified.
+3. When 3 point mode is activated and values are empty (not previously specified), then middle point is selected such that: derivative of glide at first point is 0; and the glide is reducing based on quadratic law.
 
 ## Prerequsites
 

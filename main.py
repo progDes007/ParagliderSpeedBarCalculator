@@ -197,9 +197,13 @@ class MainWindow(QWidget):
     def calculate_middle_point(self, trim_speed, trim_sink, max_speed, max_sink):
         trim_glide = (trim_speed / 3.6) / trim_sink
         max_speed_glide = (max_speed / 3.6) / max_sink
-        middle_glide = self.lerp(trim_glide, max_speed_glide, 0.5**1.7)
-
         middle_speed = (trim_speed + max_speed) / 2
+        #glide changes according to quadratic law.
+        ratio = (middle_speed - max_speed) / (max_speed - trim_speed)
+        ratio = ratio**2
+        middle_glide = self.lerp(trim_glide, max_speed_glide, ratio)
+
+        
         middle_sink = -(middle_speed / 3.6) / middle_glide
 
         return middle_speed, middle_sink
@@ -579,6 +583,8 @@ class MainWindow(QWidget):
             self.middle_sink.setDisabled(False)
         else:
             self.specify_middle_checkbox.setChecked(False)
+            self.middle_speed.setText("")
+            self.middle_sink.setText("")
             self.middle_speed.setDisabled(True)
             self.middle_sink.setDisabled(True)
 
